@@ -1,0 +1,1932 @@
+bash
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universidade Corporativa MotoChefe</title>
+<style>
+  :root {
+    --black: #000000;
+    --yellow: #F5C842;
+    --yellow-dark: #D4A800;
+    --yellow-light: #FFF8DC;
+    --white: #FFFFFF;
+    --gray-light: #F5F5F5;
+    --gray-mid: #E0E0E0;
+    --gray-text: #4A4A4A;
+    --gray-muted: #888888;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--white); color: var(--black); line-height: 1.6; }
+
+  /* SIDEBAR NAV */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 260px;
+    background: var(--black); color: var(--white);
+    overflow-y: auto; z-index: 100; display: flex; flex-direction: column;
+  }
+  .sidebar-logo {
+    padding: 24px 20px 16px; border-bottom: 1px solid #222;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-logo .brand { font-size: 22px; font-weight: 800; letter-spacing: 1px; color: var(--yellow); }
+  .sidebar-logo .sub { font-size: 10px; letter-spacing: 2px; color: #888; text-transform: uppercase; }
+  .nav-section-label {
+    padding: 16px 20px 6px; font-size: 9px; letter-spacing: 2px;
+    text-transform: uppercase; color: #555; font-weight: 600;
+  }
+  .nav-item {
+    display: block; padding: 10px 20px; font-size: 12px; color: #ccc;
+    cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s;
+    text-decoration: none; line-height: 1.4;
+  }
+  .nav-item:hover { background: #111; color: var(--yellow); border-left-color: var(--yellow); }
+  .nav-item.active { background: #111; color: var(--yellow); border-left-color: var(--yellow); font-weight: 600; }
+  .nav-item .mod-num { font-size: 9px; letter-spacing: 1px; color: #555; display: block; margin-bottom: 2px; }
+
+  /* MAIN CONTENT */
+  .main { margin-left: 260px; min-height: 100vh; }
+
+  /* HERO */
+  .hero {
+    background: var(--black); color: var(--white);
+    padding: 60px 60px 50px; position: relative; overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; right: -40px; top: -40px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: var(--yellow); opacity: 0.08;
+  }
+  .hero .eyebrow { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--yellow); margin-bottom: 12px; }
+  .hero h1 { font-size: 40px; font-weight: 900; line-height: 1.1; margin-bottom: 16px; }
+  .hero h1 span { color: var(--yellow); }
+  .hero .desc { font-size: 15px; color: #aaa; max-width: 600px; line-height: 1.7; }
+  .hero .stats { display: flex; gap: 40px; margin-top: 36px; }
+  .hero .stat .num { font-size: 28px; font-weight: 800; color: var(--yellow); }
+  .hero .stat .lbl { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* MODULE PAGES */
+  .module-page { display: none; padding: 50px 60px 80px; }
+  .module-page.visible { display: block; }
+
+  /* PAGE HEADER */
+  .page-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 2px solid var(--yellow); }
+  .page-header .eyebrow { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--yellow); margin-bottom: 8px; }
+  .page-header h2 { font-size: 32px; font-weight: 800; color: var(--black); line-height: 1.2; }
+  .page-header .subtitle { font-size: 14px; color: var(--gray-muted); margin-top: 8px; }
+
+  /* LESSON CARD */
+  .lesson {
+    background: var(--white); border: 1px solid var(--gray-mid);
+    border-radius: 8px; margin-bottom: 20px; overflow: hidden;
+  }
+  .lesson-header {
+    background: var(--black); color: var(--white);
+    padding: 16px 24px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+  }
+  .lesson-header .lesson-num {
+    background: var(--yellow); color: var(--black);
+    font-size: 11px; font-weight: 800; padding: 3px 10px;
+    border-radius: 100px; letter-spacing: 1px; white-space: nowrap;
+  }
+  .lesson-header h3 { font-size: 14px; font-weight: 600; flex: 1; }
+  .lesson-header .toggle { font-size: 18px; color: var(--yellow); transition: transform 0.2s; }
+  .lesson-header.open .toggle { transform: rotate(90deg); }
+  .lesson-body { padding: 24px; display: none; border-top: 1px solid var(--gray-mid); }
+  .lesson-body.open { display: block; }
+
+  /* CONTENT STYLES */
+  .section-title {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.5px; color: var(--black); margin: 20px 0 10px;
+    padding-bottom: 6px; border-bottom: 1px solid var(--yellow);
+  }
+  p { font-size: 14px; color: var(--gray-text); margin-bottom: 12px; line-height: 1.7; }
+  ul, ol { margin: 10px 0 16px 20px; }
+  li { font-size: 14px; color: var(--gray-text); margin-bottom: 6px; line-height: 1.6; }
+  li strong { color: var(--black); }
+
+  /* INFO BOX */
+  .info-box {
+    background: var(--yellow-light); border-left: 4px solid var(--yellow);
+    padding: 14px 18px; border-radius: 0 6px 6px 0; margin: 16px 0;
+  }
+  .info-box .info-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow-dark); margin-bottom: 6px; }
+  .info-box p { margin: 0; color: var(--gray-text); }
+
+  .warning-box {
+    background: #fff4f4; border-left: 4px solid #e53e3e;
+    padding: 14px 18px; border-radius: 0 6px 6px 0; margin: 16px 0;
+  }
+  .warning-box .info-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #c53030; margin-bottom: 6px; }
+
+  .success-box {
+    background: #f0fff4; border-left: 4px solid #38a169;
+    padding: 14px 18px; border-radius: 0 6px 6px 0; margin: 16px 0;
+  }
+  .success-box .info-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #276749; margin-bottom: 6px; }
+
+  /* SPEC TABLE */
+  .spec-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .spec-table th { background: var(--black); color: var(--yellow); padding: 10px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .spec-table td { padding: 10px 14px; border-bottom: 1px solid var(--gray-mid); color: var(--gray-text); }
+  .spec-table tr:nth-child(even) td { background: var(--gray-light); }
+  .spec-table td:first-child { font-weight: 600; color: var(--black); width: 200px; }
+
+  /* PRODUCT CARD */
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin: 20px 0; }
+  .product-card { border: 1px solid var(--gray-mid); border-radius: 8px; overflow: hidden; }
+  .product-card-head { background: var(--black); color: var(--white); padding: 12px 16px; }
+  .product-card-head .p-cat { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow); margin-bottom: 4px; }
+  .product-card-head .p-name { font-size: 16px; font-weight: 700; }
+  .product-card-body { padding: 14px 16px; background: var(--white); }
+  .product-card-body .p-stat { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--gray-mid); font-size: 12px; }
+  .product-card-body .p-stat:last-child { border-bottom: none; }
+  .product-card-body .p-stat .k { color: var(--gray-muted); }
+  .product-card-body .p-stat .v { font-weight: 600; color: var(--black); }
+
+  /* SCRIPT CARD */
+  .script-box {
+    background: var(--black); color: var(--white); border-radius: 8px;
+    padding: 20px 24px; margin: 16px 0; font-size: 13px; line-height: 1.8;
+  }
+  .script-box .script-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--yellow); margin-bottom: 12px; font-weight: 700; }
+  .script-box .vendedor { color: var(--yellow); font-weight: 700; }
+  .script-box .cliente { color: #aaa; font-style: italic; }
+
+  /* OBJECTION CARD */
+  .objection { background: var(--gray-light); border-radius: 8px; padding: 20px 24px; margin: 16px 0; }
+  .objection .obj-header { font-size: 16px; font-weight: 800; color: var(--black); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid var(--yellow); }
+  .objection .obj-row { display: grid; grid-template-columns: 160px 1fr; gap: 12px; margin-bottom: 10px; font-size: 13px; }
+  .objection .obj-label { font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; color: var(--gray-muted); padding-top: 2px; }
+  .objection .obj-val { color: var(--gray-text); }
+
+  /* QUIZ */
+  .quiz-question { background: var(--white); border: 1px solid var(--gray-mid); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+  .quiz-q-header { background: var(--black); color: var(--yellow); padding: 14px 20px; font-size: 13px; font-weight: 600; }
+  .quiz-options { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .quiz-option { padding: 10px 16px; border: 1px solid var(--gray-mid); border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.15s; color: var(--gray-text); }
+  .quiz-option:hover { border-color: var(--yellow); background: var(--yellow-light); color: var(--black); }
+  .quiz-option.correct { background: #f0fff4; border-color: #38a169; color: #276749; font-weight: 600; }
+  .quiz-option.wrong { background: #fff4f4; border-color: #e53e3e; color: #c53030; }
+  .quiz-feedback { padding: 0 20px 16px; font-size: 13px; display: none; }
+  .quiz-feedback.show { display: block; }
+
+  /* CERT */
+  .cert-box {
+    border: 3px solid var(--yellow); border-radius: 12px; padding: 36px 40px;
+    text-align: center; margin: 24px 0; background: var(--black); color: var(--white);
+  }
+  .cert-box .cert-title { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--yellow); margin-bottom: 8px; }
+  .cert-box .cert-h { font-size: 26px; font-weight: 900; margin-bottom: 8px; }
+  .cert-box .cert-sub { font-size: 13px; color: #aaa; }
+
+  /* QUICK GUIDE TABLE */
+  .quick-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .quick-table th { background: var(--yellow); color: var(--black); padding: 10px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+  .quick-table td { padding: 9px 14px; border-bottom: 1px solid var(--gray-mid); color: var(--gray-text); vertical-align: top; }
+  .quick-table tr:nth-child(even) td { background: var(--gray-light); }
+
+  /* COMPARISON TABLE */
+  .comp-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12px; }
+  .comp-table th { background: var(--black); color: var(--yellow); padding: 10px 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .comp-table td { padding: 8px 12px; border-bottom: 1px solid var(--gray-mid); color: var(--gray-text); text-align: center; }
+  .comp-table td:first-child { text-align: left; font-weight: 600; color: var(--black); }
+  .comp-table tr:nth-child(even) td { background: var(--gray-light); }
+  .check { color: #38a169; font-weight: 700; }
+  .cross { color: #e53e3e; font-weight: 700; }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 4px; background: var(--gray-mid); border-radius: 2px; margin-bottom: 2px; }
+  .progress-bar .fill { height: 100%; background: var(--yellow); border-radius: 2px; }
+
+  /* PRINT */
+  @media print {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .module-page { display: block !important; page-break-before: always; }
+    .lesson-body { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">MOTOCHEFE</div>
+    <div class="sub">Universidade Corporativa</div>
+    <div style="margin-top:10px;">
+      <div class="progress-bar"><div class="fill" style="width:0%" id="progress-fill"></div></div>
+      <div style="font-size:10px;color:#555;margin-top:4px;" id="progress-label">0 de 10 módulos</div>
+    </div>
+  </div>
+  <div class="nav-section-label">Módulos de Aprendizado</div>
+  <a class="nav-item active" data-module="home" onclick="showModule('home',this)">
+    <span class="mod-num">INÍCIO</span>
+    Bem-vindo à Universidade
+  </a>
+  <a class="nav-item" data-module="m1" onclick="showModule('m1',this)">
+    <span class="mod-num">MÓDULO 01</span>
+    Boas-vindas à MotoChefe
+  </a>
+  <a class="nav-item" data-module="m2" onclick="showModule('m2',this)">
+    <span class="mod-num">MÓDULO 02</span>
+    Conhecendo o Portfólio
+  </a>
+  <a class="nav-item" data-module="m3" onclick="showModule('m3',this)">
+    <span class="mod-num">MÓDULO 03</span>
+    Perfil dos Clientes
+  </a>
+  <a class="nav-item" data-module="m4" onclick="showModule('m4',this)">
+    <span class="mod-num">MÓDULO 04</span>
+    Processo de Vendas
+  </a>
+  <a class="nav-item" data-module="m5" onclick="showModule('m5',this)">
+    <span class="mod-num">MÓDULO 05</span>
+    Biblioteca de Objeções
+  </a>
+  <a class="nav-item" data-module="m6" onclick="showModule('m6',this)">
+    <span class="mod-num">MÓDULO 06</span>
+    Argumentação Comercial
+  </a>
+  <a class="nav-item" data-module="m7" onclick="showModule('m7',this)">
+    <span class="mod-num">MÓDULO 07</span>
+    Comparativos de Modelos
+  </a>
+  <a class="nav-item" data-module="m8" onclick="showModule('m8',this)">
+    <span class="mod-num">MÓDULO 08</span>
+    Garantia e Suporte
+  </a>
+  <a class="nav-item" data-module="m9" onclick="showModule('m9',this)">
+    <span class="mod-num">MÓDULO 09</span>
+    Certificação
+  </a>
+  <a class="nav-item" data-module="m10" onclick="showModule('m10',this)">
+    <span class="mod-num">MÓDULO 10</span>
+    Manual de Consulta Rápida
+  </a>
+  <div style="padding:20px;margin-top:auto;border-top:1px solid #222;">
+    <div style="font-size:10px;color:#555;margin-bottom:6px;">SAC MOTOCHEFE</div>
+    <div style="font-size:12px;color:#aaa;">(21) 96679-0202</div>
+    <div style="font-size:11px;color:#555;">motochefebrasil.com.br</div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- HOME -->
+  <div id="home" class="module-page visible">
+    <div class="hero">
+      <div class="eyebrow">Universidade Corporativa</div>
+      <h1>Bem-vindo à <span>MotoChefe</span><br>Academy</h1>
+      <p class="desc">A plataforma completa de treinamento para vendedores MotoChefe. Aqui você aprende tudo sobre nossa empresa, portfólio, técnicas de vendas, garantia e muito mais. Conclua todos os módulos e obtenha sua certificação oficial.</p>
+      <div class="stats">
+        <div class="stat"><div class="num">10</div><div class="lbl">Módulos</div></div>
+        <div class="stat"><div class="num">+35</div><div class="lbl">Modelos no Portfólio</div></div>
+        <div class="stat"><div class="num">+200k</div><div class="lbl">Clientes Satisfeitos</div></div>
+        <div class="stat"><div class="num">+70</div><div class="lbl">Lojas no Brasil</div></div>
+      </div>
+    </div>
+    <div style="padding:50px 60px;">
+      <div class="section-title">Estrutura do Programa</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:16px;">
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m1',document.querySelector('[data-module=m1]'))">
+          <div class="info-label">Módulo 01 — Boas-vindas</div>
+          <p>História, missão, visão, valores e diferenciais da MotoChefe.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m2',document.querySelector('[data-module=m2]'))">
+          <div class="info-label">Módulo 02 — Portfólio</div>
+          <p>Fichas técnicas completas de cada modelo: autopropelidos, ciclomotores, e-bikes e triciclos.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m3',document.querySelector('[data-module=m3]'))">
+          <div class="info-label">Módulo 03 — Perfil do Cliente</div>
+          <p>Quem compra, dores, objeções, motivações e casos de uso reais.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m4',document.querySelector('[data-module=m4]'))">
+          <div class="info-label">Módulo 04 — Processo de Vendas</div>
+          <p>Passo a passo completo: primeiro contato ao pós-venda.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m5',document.querySelector('[data-module=m5]'))">
+          <div class="info-label">Módulo 05 — Objeções</div>
+          <p>Biblioteca completa com motivo real, como identificar, como responder e exemplos de diálogo.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m6',document.querySelector('[data-module=m6]'))">
+          <div class="info-label">Módulo 06 — Argumentação</div>
+          <p>Scripts completos para WhatsApp, telefone, presencial, Instagram e leads de anúncios.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m7',document.querySelector('[data-module=m7]'))">
+          <div class="info-label">Módulo 07 — Comparativos</div>
+          <p>Comparação entre categorias: vantagens, desvantagens, perfil ideal de cliente.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m8',document.querySelector('[data-module=m8]'))">
+          <div class="info-label">Módulo 08 — Garantia e Suporte</div>
+          <p>Regras completas, coberturas, exclusões, procedimentos e termos oficiais.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m9',document.querySelector('[data-module=m9]'))">
+          <div class="info-label">Módulo 09 — Certificação</div>
+          <p>Questionários, estudos de caso, simulações de atendimento e prova final.</p>
+        </div>
+        <div class="info-box" style="cursor:pointer" onclick="showModule('m10',document.querySelector('[data-module=m10]'))">
+          <div class="info-label">Módulo 10 — Consulta Rápida</div>
+          <p>Guia operacional para consulta no dia a dia de vendas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 1 -->
+  <div id="m1" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 01</div>
+      <h2>Boas-Vindas à MotoChefe</h2>
+      <p class="subtitle">Conheça a empresa que você representa. História, propósito e posicionamento.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 1.1</span>
+        <h3>História e Fundação</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Origem da MotoChefe</div>
+        <p>A MotoChefe foi <strong>fundada em 2019</strong>, tornando-se uma das <strong>pioneiras na comercialização de scooters elétricas no Brasil</strong>. Quando muitos ainda duvidavam do potencial da mobilidade elétrica no país, a MotoChefe já acreditava — e entrou no mercado quando ele ainda nem existia.</p>
+        <p>Desde o início, a marca nasceu com o propósito de <strong>revolucionar a forma de se mover</strong>, unindo tecnologia, design e desempenho em soluções que traduzem liberdade, economia e sustentabilidade.</p>
+        <div class="info-box">
+          <div class="info-label">CNPJ Oficial</div>
+          <p>MOTOCHEFE — CNPJ nº 44.100.346/0001-37</p>
+        </div>
+        <div class="section-title">Trajetória de Expansão</div>
+        <p>Em poucos anos de operação, a MotoChefe conquistou resultados expressivos:</p>
+        <ul>
+          <li>Da primeira loja em 2019, hoje a marca conta com <strong>65+ lojas próprias</strong></li>
+          <li><strong>+300 pontos de revenda</strong> em todo o Brasil</li>
+          <li><strong>+200.000 produtos vendidos</strong></li>
+          <li>Presença em <strong>mais de 21 estados brasileiros</strong></li>
+        </ul>
+        <div class="section-title">Montadora Nacional — Zona Franca de Manaus</div>
+        <p>A MotoChefe possui <strong>montadora própria na Zona Franca de Manaus</strong>, o que garante:</p>
+        <ul>
+          <li><strong>Agilidade</strong> no atendimento e no suprimento de peças</li>
+          <li><strong>Padrão elevado</strong> de controle de qualidade</li>
+          <li><strong>Segurança e durabilidade</strong> em cada produto</li>
+          <li>Estoque completo de peças e rede de assistência técnica nacional</li>
+        </ul>
+        <p>A expansão é sustentada por uma cadeia logística inteligente, com Centro de Distribuição principal no <strong>Rio de Janeiro</strong> e operações estratégicas em São Paulo, Espírito Santo, Santa Catarina e Ceará.</p>
+        <div class="info-box">
+          <div class="info-label">Tecnologia de Gestão</div>
+          <p>Toda a operação é gerida com tecnologia de ponta (ERP/WMS), garantindo controle de estoque preciso, gestão integrada e eficiência total nas entregas.</p>
+        </div>
+        <div class="section-title">Presença Nacional — Estados com MotoChefe</div>
+        <p>Rio de Janeiro • São Paulo • Minas Gerais • Mato Grosso • Mato Grosso do Sul • Bahia • Goiás • Paraná • Santa Catarina • Rio Grande do Sul • Alagoas • Distrito Federal • Pará • Espírito Santo • Ceará • Pernambuco • Maranhão • Amapá • Paraíba • Rio Grande do Norte • Rondônia</p>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 1.2</span>
+        <h3>Missão, Visão e Valores</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Missão</div>
+        <p>Revolucionar a mobilidade urbana no Brasil por meio de veículos elétricos de alta performance, design inovador e tecnologia acessível — unindo liberdade, economia e sustentabilidade para cada brasileiro.</p>
+        <div class="section-title">Visão</div>
+        <p>Ser a montadora nacional líder em mobilidade elétrica sobre duas rodas, presente em todo o território brasileiro, referência em inovação, qualidade e confiança.</p>
+        <div class="section-title">Valores</div>
+        <ul>
+          <li><strong>Pioneirismo:</strong> Entramos no mercado quando ele ainda não existia. Inovar é parte do nosso DNA.</li>
+          <li><strong>Tecnologia:</strong> Acompanhamos de perto o processo de produção, garantindo componentes com alto desempenho.</li>
+          <li><strong>Confiança:</strong> Mais de 200.000 clientes satisfeitos são o reflexo do compromisso com qualidade.</li>
+          <li><strong>Escala Nacional:</strong> Presença estratégica em todo o país, próximos do cliente onde ele estiver.</li>
+          <li><strong>Sustentabilidade:</strong> Zero emissão. Comprometidos com um futuro mais limpo e inteligente.</li>
+          <li><strong>Tradição e Paixão:</strong> Assim como o nosso parceiro Vasco da Gama, acreditamos em determinação e inovação.</li>
+        </ul>
+        <div class="info-box">
+          <div class="info-label">Frase Institucional</div>
+          <p>"O futuro da mobilidade urbana não é uma promessa distante. É real, é agora, e está ao seu alcance." — MotoChefe Brasil</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 1.3</span>
+        <h3>Diferenciais da Marca e Posicionamento</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">6 Razões para Escolher a MotoChefe</div>
+        <table class="spec-table">
+          <tr><th>Diferencial</th><th>Descrição Completa</th></tr>
+          <tr><td>01 — Montadora Nacional</td><td>Produção própria na Zona Franca de Manaus. Maior agilidade no atendimento e controle total da qualidade.</td></tr>
+          <tr><td>02 — Tecnologia Avançada</td><td>Acompanhamos o processo de produção, garantindo componentes com alto desempenho e melhor performance.</td></tr>
+          <tr><td>03 — Rede em Expansão</td><td>Já são mais de 70 lojas próprias em 300 pontos de revenda. Assistência técnica sempre próxima do cliente.</td></tr>
+          <tr><td>04 — Variedade de Modelos</td><td>São +35 modelos, cuidadosamente desenhados para cada estilo, rotina e paixão.</td></tr>
+          <tr><td>05 — Economia Real</td><td>Até 90% de economia em comparação com motos a combustão. ROI comprovado.</td></tr>
+          <tr><td>06 — Do Pioneirismo à Liderança</td><td>No mercado desde 2019. Mais de 200.000 produtos vendidos. Liderança conquistada com trabalho.</td></tr>
+        </table>
+        <div class="section-title">Embaixadores e Parcerias Estratégicas</div>
+        <ul>
+          <li><strong>Diego Ribas</strong> — Conselheiro e Embaixador da MotoChefe. Ex-jogador do Flamengo e Campeão da Copa do Mundo.</li>
+          <li><strong>Ronaldinho Gaúcho</strong> — Embaixador da marca. "A MotoChefe me dá liberdade de curtir a cidade no meu ritmo, com estilo."</li>
+          <li><strong>Vasco da Gama</strong> — Desde fevereiro de 2025, a MotoChefe é patrocinadora oficial do Clube de Regatas Vasco da Gama.</li>
+        </ul>
+        <div class="section-title">Seguro Exclusivo de Bateria — Primeiro do Brasil</div>
+        <p>A MotoChefe inovou mais uma vez ao lançar o <strong>primeiro seguro exclusivo para baterias do Brasil</strong>, garantido pela <strong>Yelum Seguradora</strong> (Grupo HDI Seguros), por meio da <strong>Apólice nº 51.38.2025.0000324</strong>, válida em território nacional.</p>
+        <div class="section-title">Club MotoChefe</div>
+        <p>Plataforma de benefícios exclusivos para clientes MotoChefe. Acesso em: <strong>motochefe.aride.com.br</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 2 -->
+  <div id="m2" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 02</div>
+      <h2>Conhecendo o Portfólio</h2>
+      <p class="subtitle">Fichas técnicas completas de cada categoria e modelo. Saiba o que vender e para quem.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 2.1</span>
+        <h3>Visão Geral das Categorias</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="spec-table">
+          <tr><th>Categoria</th><th>Velocidade Máx.</th><th>Autonomia</th><th>Exige CNH/Emplacamento</th><th>Destaque</th></tr>
+          <tr><td>Autopropelidos</td><td>32 km/h</td><td>Até 55 km</td><td>NÃO</td><td>Liberdade total — ideal para mobilidade urbana rápida</td></tr>
+          <tr><td>Ciclomotores</td><td>50 km/h</td><td>Até 70 km</td><td>SIM (Cat. A ou ACC)</td><td>Autonomia e potência urbana — trabalho e lazer</td></tr>
+          <tr><td>Triciclos</td><td>50 km/h</td><td>Até 70 km</td><td>SIM (Cat. A ou ACC)</td><td>Estabilidade e carga — ideal para entregas e famílias</td></tr>
+          <tr><td>E-Bikes</td><td>Regulamentado</td><td>Variável</td><td>NÃO (pedalada assistida)</td><td>Pedale quando quiser, acelere quando precisar</td></tr>
+        </table>
+        <div class="info-box">
+          <div class="info-label">Argumento de Venda — Autopropelidos</div>
+          <p>Resolução CONTRAN nº 996 de 15 de junho de 2023: o autopropelido é totalmente legal, sem necessidade de CNH nem emplacamento, desde que respeitadas as configurações da norma. Velocidade máxima de 32 km/h.</p>
+        </div>
+        <div class="warning-box">
+          <div class="info-label">Atenção — Ciclomotores</div>
+          <p>O cliente deve ser informado que ciclomotores elétricos <strong>exigem emplacamento e habilitação (Categoria A ou ACC)</strong> para pilotagem, sendo passível de multa e outras sanções. É responsabilidade do comprador regularizar a documentação junto aos Órgãos competentes.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 2.2</span>
+        <h3>Autopropelidos — Linha Completa</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="product-grid">
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">GIGA</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Bateria</span><span class="v">Lítio removível c/ alça</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">JET MAX</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 55 km</span></div>
+              <div class="p-stat"><span class="k">Bateria</span><span class="v">Lítio 60V 30Ah</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">X12</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Destaque</span><span class="v">Compacta e tecnológica</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">BOB</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Diferencial</span><span class="v">Freios hidráulicos + cesta</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">JET</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Diferencial</span><span class="v">Alarme antifurto + disco</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">JOYZINHA</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">600W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Perfil</span><span class="v">Compacta e estilosa</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">JOY CLASSIC</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">600W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Bateria</span><span class="v">Lítio 60V</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">JOY SUPER</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">800W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Carga</span><span class="v">Até 150 kg</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">MC20 MINI</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Diferencial</span><span class="v">Susp. reforçada + garupa</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">MC21 MINI</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Perfil</span><span class="v">Design minimalista</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">MIA</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Bateria</span><span class="v">60V 20Ah removível</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">SOFIA</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Perfil</span><span class="v">Design retrô + moderno</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">RET</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Bateria</span><span class="v">Lítio 60V</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-card-head"><div class="p-cat">Autopropelido</div><div class="p-name">SOMA</div></div>
+            <div class="product-card-body">
+              <div class="p-stat"><span class="k">Velocidade</span><span class="v">32 km/h</span></div>
+              <div class="p-stat"><span class="k">Potência</span><span class="v">1000W</span></div>
+              <div class="p-stat"><span class="k">Autonomia</span><span class="v">Até 40 km</span></div>
+              <div class="p-stat"><span class="k">Perfil</span><span class="v">Moderna e segura</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="section-title">Características Comuns — Autopropelidos</div>
+        <ul>
+          <li>Não requerem CNH nem emplacamento</li>
+          <li>Velocidade máxima: 32 km/h (conforme CONTRAN nº 996/2023)</li>
+          <li>Baterias de lítio — a maioria removível para carregamento interno</li>
+          <li>Garantia de 1 ano para motor, bateria e módulo</li>
+          <li>Produção nacional — Zona Franca de Manaus</li>
+          <li>Na calçada: velocidade máxima de 6 km/h (conforme resolução)</li>
+        </ul>
+        <div class="section-title">Principais Dúvidas dos Clientes — Autopropelidos</div>
+        <ul>
+          <li><strong>"Preciso de habilitação?"</strong> — Não. Autopropelidos dispensam CNH e emplacamento por lei (CONTRAN nº 996/2023).</li>
+          <li><strong>"Quanto tempo leva para carregar?"</strong> — O tempo máximo de carregamento é de 8 horas. Nunca deixar carregando durante a noite.</li>
+          <li><strong>"Posso carregar na tomada normal?"</strong> — Sim. Conecte sempre diretamente na tomada de parede. Evite extensões e filtros de linha.</li>
+          <li><strong>"Aguenta dois passageiros?"</strong> — Depende do modelo. A BOB, MC20 Mini e Joy Super suportam dois ocupantes.</li>
+          <li><strong>"E se a bateria acabar no meio do caminho?"</strong> — A bateria é removível na maioria dos modelos. Leve um carregador extra ou planeje suas rotas.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 2.3</span>
+        <h3>Ciclomotores — Categoria e Regulamentação</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">O que é um Ciclomotor Elétrico?</div>
+        <p>Ciclomotores elétricos são veículos que atingem velocidade máxima de <strong>50 km/h</strong> e autonomia de até <strong>70 km</strong>. Por terem maior potência, são classificados pelo CTB e CONTRAN de forma diferente dos autopropelidos.</p>
+        <table class="spec-table">
+          <tr><th>Especificação</th><th>Detalhe</th></tr>
+          <tr><td>Velocidade Máxima</td><td>50 km/h</td></tr>
+          <tr><td>Autonomia</td><td>Até 70 km</td></tr>
+          <tr><td>CNH</td><td>Obrigatória — Categoria A ou ACC</td></tr>
+          <tr><td>Emplacamento</td><td>Obrigatório</td></tr>
+          <tr><td>Ideal para</td><td>Trabalho e lazer com maior distância percorrida</td></tr>
+          <tr><td>Garantia Motor/Bateria</td><td>1 ano</td></tr>
+          <tr><td>Garantia Parte Elétrica</td><td>6 meses</td></tr>
+          <tr><td>Garantia Montagem/Componentes</td><td>3 meses</td></tr>
+        </table>
+        <div class="warning-box">
+          <div class="info-label">Obrigação Legal do Vendedor</div>
+          <p>Ao vender um ciclomotor, o vendedor DEVE informar ao cliente sobre a necessidade de CNH (Cat. A ou ACC) e emplacamento. O cliente deve assinar o <strong>Termo de Responsabilidade – Ciclomotores</strong>, que confirma ciência das obrigações legais.</p>
+        </div>
+        <div class="section-title">Principais Dúvidas dos Clientes — Ciclomotores</div>
+        <ul>
+          <li><strong>"Precisa de CNH?"</strong> — Sim. Categoria A ou ACC obrigatória para ciclomotores.</li>
+          <li><strong>"Precisa de placa?"</strong> — Sim. Emplacamento obrigatório.</li>
+          <li><strong>"Quanto custa o emplacamento?"</strong> — Informação não localizada nos materiais fornecidos. Consulte a loja.</li>
+          <li><strong>"Posso retirar antes de regularizar?"</strong> — Tecnicamente sim, mas é inteira responsabilidade do comprador. Recomenda-se aguardar a regularização.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 2.4</span>
+        <h3>Triciclos e E-Bikes</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Triciclos</div>
+        <p>Os triciclos MotoChefe oferecem as mesmas especificações dos ciclomotores em termos de velocidade (50 km/h) e autonomia (até 70 km), com a vantagem adicional da <strong>estabilidade de três rodas</strong>.</p>
+        <ul>
+          <li>Exige CNH Categoria A ou ACC</li>
+          <li>Ideal para trabalho, lazer e cargas leves</li>
+          <li>Maior estabilidade — recomendado para iniciantes e clientes com dificuldades de equilíbrio</li>
+          <li>Autonomia de até 70 km</li>
+        </ul>
+        <div class="section-title">E-Bikes (Bicicletas Elétricas)</div>
+        <p>As e-bikes combinam pedalada humana com assistência elétrica. A frase que resume: <strong>"Pedale quando quiser, acelere quando precisar."</strong></p>
+        <ul>
+          <li>Não exigem CNH nem emplacamento</li>
+          <li>Promovem saúde e bem-estar além da mobilidade</li>
+          <li>Ideais para quem busca opção sustentável de exercício e deslocamento</li>
+        </ul>
+        <div class="info-box">
+          <div class="info-label">Informação não localizada nos materiais fornecidos</div>
+          <p>Fichas técnicas individuais (modelos específicos, potências, preços) de triciclos e e-bikes não foram fornecidas nos materiais. Consulte o catálogo atualizado em motochefebrasil.com.br/modelos para especificações detalhadas de cada modelo.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 2.5</span>
+        <h3>Garantia do Produto — Resumo Técnico</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="spec-table">
+          <tr><th>Componente</th><th>Prazo de Garantia</th><th>Observação</th></tr>
+          <tr><td>Motor, Bateria e Módulo</td><td>1 ano</td><td>Defeitos, falhas ou irregularidades por uso normal</td></tr>
+          <tr><td>Parte Elétrica</td><td>6 meses</td><td>Inclui a garantia legal de 90 dias do CDC</td></tr>
+          <tr><td>Montagem e Demais Componentes</td><td>3 meses</td><td>Inclui a garantia legal de 90 dias do CDC</td></tr>
+        </table>
+        <div class="info-box">
+          <div class="info-label">Base Legal</div>
+          <p>Os prazos incluem a garantia legal de 90 (noventa) dias prevista no Art. 26, II, do Código de Defesa do Consumidor (Lei nº 8.078/1990). Início da contagem: data da venda na nota fiscal.</p>
+        </div>
+        <div class="section-title">Revisões Recomendadas</div>
+        <p>É indicado realizar as revisões de <strong>3 em 3 meses</strong> ou a cada <strong>2.000 km rodados</strong>, o que acontecer primeiro.</p>
+        <p>Revisões fora das concessionárias ou assistências autorizadas cancelam a garantia.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 3 -->
+  <div id="m3" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 03</div>
+      <h2>Perfil dos Clientes MotoChefe</h2>
+      <p class="subtitle">Entenda quem compra, por que compra, o que sente e como abordar com eficiência.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 3.1</span>
+        <h3>Quem Compra MotoChefe</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Perfis de Compradores</div>
+        <table class="spec-table">
+          <tr><th>Perfil</th><th>Características</th><th>Modelo Recomendado</th></tr>
+          <tr><td>Trabalhador Urbano</td><td>Usa para deslocamento diário, economiza com combustível e estacionamento, busca praticidade</td><td>Ciclomotores, X12, Jet Max</td></tr>
+          <tr><td>Entregador / Delivery</td><td>Precisa de autonomia, resistência e custo operacional baixo</td><td>Ciclomotores, BOB (com cesta)</td></tr>
+          <tr><td>Jovem Urbano</td><td>Busca estilo, tecnologia e liberdade sem burocracia (sem CNH)</td><td>Joyzinha, MC20 Mini, MC21 Mini, Giga</td></tr>
+          <tr><td>Mulher Independente</td><td>Praticidade, segurança, design e não necessidade de CNH</td><td>Mia, Sofia, Joy Classic, Joyzinha</td></tr>
+          <tr><td>Terceira Idade / Iniciantes</td><td>Estabilidade, facilidade de uso, sem necessidade de equilíbrio perfeito</td><td>Triciclos</td></tr>
+          <tr><td>Esportivo / Lifestyle</td><td>Quer performance e status, associa ao Vasco, Ronaldinho</td><td>Giga, Joy Super, Jet Max</td></tr>
+          <tr><td>Família</td><td>Quer transporte para dois, econômico e seguro</td><td>BOB, MC20 Mini, Joy Super</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 3.2</span>
+        <h3>Principais Dores dos Clientes</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <ul>
+          <li><strong>Alto custo com combustível:</strong> Gasolina cara, abastecimento frequente, imprevisibilidade de preços</li>
+          <li><strong>Trânsito e tempo perdido:</strong> Engarrafamentos, demora no transporte público</li>
+          <li><strong>Custo com estacionamento:</strong> Rotativo, estacionamentos pagos no centro</li>
+          <li><strong>Burocracia de habilitação:</strong> Não tem CNH, não quer se preocupar com placas</li>
+          <li><strong>Medo de manutenção cara:</strong> Motos a combustão têm manutenção frequente e custosa</li>
+          <li><strong>Preocupação ambiental:</strong> Querem um produto mais sustentável</li>
+          <li><strong>Falta de segurança:</strong> Querem produto com alarme, freios seguros</li>
+          <li><strong>Custo de vida alto:</strong> Querem economizar sem abrir mão da mobilidade</li>
+        </ul>
+        <div class="section-title">Como Conectar com as Dores</div>
+        <p>Ao identificar a dor do cliente, conecte diretamente ao produto certo. Exemplo: cliente com dor em combustível → "Com a MotoChefe você gasta até 90% menos em comparação com moto a combustão. Calculando: se você gasta R$300/mês em gasolina, com a MotoChefe vai gastar R$30. Em 12 meses são R$3.240 de economia."</p>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 3.3</span>
+        <h3>Motivos de Compra e Casos de Uso</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Principais Motivos de Compra</div>
+        <ul>
+          <li><strong>Economia:</strong> Até 90% de redução em custos de combustível</li>
+          <li><strong>Praticidade:</strong> Sem CNH, sem emplacamento, sem IPVA (autopropelidos)</li>
+          <li><strong>Mobilidade urbana:</strong> Fugir do trânsito, chegar mais rápido</li>
+          <li><strong>Sustentabilidade:</strong> Zero emissão, produto ecológico</li>
+          <li><strong>Estilo:</strong> Design moderno, associação com celebridades e times</li>
+          <li><strong>Renda:</strong> Usar para delivery, trabalho, geração de renda</li>
+          <li><strong>Presente:</strong> Para filhos, cônjuges, parentes</li>
+        </ul>
+        <div class="section-title">Casos de Uso Reais</div>
+        <ul>
+          <li><strong>Trabalho diário:</strong> Ir e voltar do trabalho sem gastar com transporte público ou combustível</li>
+          <li><strong>Compras e mercado:</strong> Deslocamentos curtos no bairro</li>
+          <li><strong>Delivery:</strong> Uso profissional para entregas (especialmente ciclomotores e BOB)</li>
+          <li><strong>Escola dos filhos:</strong> Levar e buscar em distâncias curtas</li>
+          <li><strong>Lazer:</strong> Passeios no fim de semana, orla, parque</li>
+          <li><strong>Mobilidade reduzida:</strong> Triciclos para quem tem dificuldade de equilíbrio</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 4 -->
+  <div id="m4" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 04</div>
+      <h2>Processo de Vendas MotoChefe</h2>
+      <p class="subtitle">Passo a passo completo do primeiro contato ao pós-venda. Siga o método e feche mais.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 4.1</span>
+        <h3>Etapa 1 — Primeiro Contato</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Objetivo</div>
+        <p>Causar uma primeira impressão positiva, gerar confiança e abrir espaço para entender o cliente.</p>
+        <div class="section-title">Como Fazer</div>
+        <ul>
+          <li>Recepcione com sorriso, postura e linguagem adequada ao perfil do cliente</li>
+          <li>Apresente-se pelo nome: "Olá! Sou [nome], da MotoChefe."</li>
+          <li>Não tente vender imediatamente. Foque em gerar rapport.</li>
+          <li>Perguntas de abertura: "O que te trouxe aqui hoje?" / "Você já conhece a MotoChefe?"</li>
+          <li>No WhatsApp/Instagram: responda em até 5 minutos. Velocidade de resposta gera confiança.</li>
+        </ul>
+        <div class="info-box">
+          <div class="info-label">Regra de Ouro</div>
+          <p>Ouça mais do que fala. No primeiro contato, o objetivo é entender, não convencer.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 4.2</span>
+        <h3>Etapa 2 — Qualificação</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Objetivo</div>
+        <p>Entender o perfil, necessidade e capacidade de compra do cliente para recomendar o produto certo.</p>
+        <div class="section-title">Perguntas de Qualificação</div>
+        <ul>
+          <li>"Qual é o principal uso que você pretende dar ao veículo?" (trabalho, lazer, delivery?)</li>
+          <li>"Você tem CNH?" (define autopropelido x ciclomotor)</li>
+          <li>"Qual a distância do seu percurso diário?" (define modelo pela autonomia)</li>
+          <li>"Você prefere pagar à vista ou parcelado?"</li>
+          <li>"Já teve alguma experiência com veículo elétrico?"</li>
+          <li>"Tem mais alguém que vai usar? Precisa de dois lugares?"</li>
+        </ul>
+        <div class="section-title">Mapeamento da Necessidade</div>
+        <table class="spec-table">
+          <tr><th>Resposta do Cliente</th><th>Ação do Vendedor</th></tr>
+          <tr><td>Não tem CNH</td><td>Direcionar para autopropelidos. Enfatizar a liberdade legal.</td></tr>
+          <tr><td>Tem CNH e quer mais velocidade/autonomia</td><td>Apresentar ciclomotores ou triciclos</td></tr>
+          <tr><td>Quer para delivery</td><td>BOB (com cesta) ou ciclomotores</td></tr>
+          <tr><td>Quer para dois</td><td>BOB, MC20 Mini, Joy Super</td></tr>
+          <tr><td>Público feminino, uso leve</td><td>Mia, Sofia, Joyzinha, Joy Classic</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 4.3</span>
+        <h3>Etapa 3 — Apresentação do Produto</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Objetivo</div>
+        <p>Apresentar o produto certo para o cliente certo, conectando características às necessidades levantadas na qualificação.</p>
+        <div class="section-title">Como Apresentar</div>
+        <ul>
+          <li>Use a lógica: <strong>Característica → Benefício → Conexão com a dor do cliente</strong></li>
+          <li>Exemplo: "Motor de 1000W [característica] significa que ela sobe ladeiras com facilidade [benefício]. Como você me falou que mora no morro, isso é perfeito para você [conexão]."</li>
+          <li>Mostre o produto fisicamente. Deixe o cliente tocar, sentar, testar.</li>
+          <li>Fale sobre a garantia de 1 ano como diferencial de segurança</li>
+          <li>Mencione o seguro exclusivo da bateria (Yelum Seguradora — apólice nº 51.38.2025.0000324)</li>
+          <li>Reforce a montadora nacional: "É produzida no Brasil, na Zona Franca de Manaus."</li>
+        </ul>
+        <div class="info-box">
+          <div class="info-label">Âncoras de Credibilidade</div>
+          <p>Ronaldinho Gaúcho usa MotoChefe. O Vasco da Gama é patrocinado pela MotoChefe. Mais de 200.000 clientes satisfeitos. Use esses pontos com naturalidade para construir confiança.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 4.4</span>
+        <h3>Etapa 4 — Demonstração</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">A Importância da Demonstração</div>
+        <p>A demonstração é o momento em que o cliente <strong>experimenta o produto</strong>. Quem testa compra mais. Nunca pule essa etapa quando possível.</p>
+        <div class="section-title">Protocolo de Demonstração</div>
+        <ul>
+          <li>Ofereça ao cliente sentar no veículo e sentir o conforto do banco</li>
+          <li>Mostre o painel digital e as funções (3 níveis de velocidade, alarme)</li>
+          <li>Se possível, realize um teste de marcha dentro da loja ou área externa</li>
+          <li>Mostre a bateria removível e explique como funciona o carregamento</li>
+          <li>Demonstre como funciona o NFC (nos modelos que possuem, como a Giga)</li>
+          <li>Explique os freios (a disco nos modelos que possuem) como diferencial de segurança</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 4.5</span>
+        <h3>Etapa 5 — Negociação e Fechamento</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Negociação</div>
+        <ul>
+          <li>Pergunte diretamente: "Qual é sua condição de pagamento ideal?"</li>
+          <li>Apresente opções: à vista, parcelado, financiamento (se disponível)</li>
+          <li>Use o argumento da economia: "Em 6 meses você já recupera o investimento com a economia de combustível."</li>
+          <li>Não dê desconto antes de ouvir a objeção completa. Muitas vezes o cliente aceita o preço após a argumentação.</li>
+        </ul>
+        <div class="section-title">Técnicas de Fechamento</div>
+        <ul>
+          <li><strong>Fechamento alternativo:</strong> "Você prefere levar em azul ou preto?"</li>
+          <li><strong>Fechamento por urgência:</strong> "Temos apenas esta unidade em estoque nessa cor."</li>
+          <li><strong>Fechamento por benefício final:</strong> "Você me disse que gasta R$400 por mês em combustível. A partir de hoje, isso acaba."</li>
+          <li><strong>Resumo de valor:</strong> "Então, você vai levar a BOB, com garantia de 1 ano, seguro da bateria incluído, sem CNH, sem placa, e começa a economizar amanhã."</li>
+        </ul>
+        <div class="section-title">Documentos na Venda</div>
+        <ul>
+          <li>Nota Fiscal</li>
+          <li>Termo de Responsabilidade (Autopropelido ou Ciclomotor — conforme o modelo)</li>
+          <li>Contrato de Garantia</li>
+          <li>Termo de Seguro da Bateria (com data de venda, data de vencimento e ID da bateria preenchidos)</li>
+          <li>Certificado do Seguro da Bateria (Yelum — preencher todos os campos do cliente)</li>
+          <li>Cartilha de Bateria (entregar ao cliente)</li>
+          <li>Cartilha de Boas Maneiras no Trânsito (entregar ao cliente)</li>
+        </ul>
+        <div class="warning-box">
+          <div class="info-label">Atenção — Após a Venda</div>
+          <p>Após a conclusão do serviço/entrega, o cliente terá <strong>48 horas</strong> para retirar o veículo da loja, sob pena de cobrança de <strong>taxa diária de R$ 20,00</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 4.6</span>
+        <h3>Etapa 6 — Pós-Venda</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Por que o Pós-Venda é Estratégico</div>
+        <p>O pós-venda fideliza o cliente, gera indicações e protege a reputação da loja. Um cliente satisfeito indica em média 3 novos clientes.</p>
+        <div class="section-title">Protocolo de Pós-Venda</div>
+        <ul>
+          <li>Entrar em contato por WhatsApp em 3 dias após a venda: "Oi [nome]! Tudo bem com sua [modelo]?"</li>
+          <li>Lembrar o cliente do prazo de revisão (3 meses ou 2.000 km)</li>
+          <li>Informar o Club MotoChefe: motochefe.aride.com.br</li>
+          <li>Reforçar os canais de suporte: SAC (21) 96679-0202 / sac@motochefebrasil.com.br</li>
+          <li>Solicitar avaliação ou indicação de forma natural: "Se você ficou satisfeito, nos recomende para seus amigos!"</li>
+        </ul>
+        <div class="section-title">Central de Atendimento</div>
+        <table class="spec-table">
+          <tr><th>Canal</th><th>Contato</th><th>Horário</th></tr>
+          <tr><td>SAC Principal</td><td>(21) 96679-0202</td><td>Seg–Sex 10h–17h / Sáb 10h–12h</td></tr>
+          <tr><td>E-mail SAC</td><td>sac@motochefebrasil.com.br</td><td>Seg–Sex 10h–17h</td></tr>
+          <tr><td>SAC Garantia Bateria</td><td>(21) 98876-2250</td><td>Seg–Sex 10h–17h / Sáb 10h–12h</td></tr>
+          <tr><td>Site</td><td>motochefebrasil.com.br</td><td>24h</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 5 -->
+  <div id="m5" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 05</div>
+      <h2>Biblioteca Completa de Objeções</h2>
+      <p class="subtitle">Conheça a fundo cada objeção. Motivo real, como identificar, como responder, e diálogos reais.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 5.1</span>
+        <h3>Objeção: "Está Caro"</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="objection">
+          <div class="obj-header">"Está caro" / "Não tenho esse dinheiro"</div>
+          <div class="obj-row"><span class="obj-label">Motivo Real</span><span class="obj-val">O cliente não está enxergando o valor. Ele está comparando o preço com o que tem no bolso agora, não com o retorno que terá.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Identificar</span><span class="obj-val">O cliente hesita ao ouvir o preço, pede desconto imediatamente, ou compara com produtos mais baratos sem entender as diferenças.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Responder</span><span class="obj-val">Reancoramos o valor. Calculamos o ROI. Apresentamos a economia como investimento, não como custo.</span></div>
+        </div>
+        <div class="script-box">
+          <div class="script-label">Exemplo de Diálogo</div>
+          <span class="cliente">Cliente: "R$ 5.000 está caro demais para uma scooter elétrica."</span><br><br>
+          <span class="vendedor">Vendedor: "Entendo. Me deixa te mostrar um cálculo rápido. Você gasta quanto por mês em combustível hoje?"</span><br><br>
+          <span class="cliente">Cliente: "Uns R$ 350 por mês."</span><br><br>
+          <span class="vendedor">Vendedor: "Então em 12 meses, você vai economizar R$ 4.200 em combustível. Mais a economia em estacionamento e manutenção. Em menos de 14 meses o veículo se paga. A partir daí, tudo é lucro no seu bolso. Além disso, você tem garantia de 1 ano e ainda o seguro exclusivo da bateria incluso. Qual forma de pagamento fica melhor para você?"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 5.2</span>
+        <h3>Objeção: "Vou Pensar"</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="objection">
+          <div class="obj-header">"Vou pensar" / "Vou dar uma volta e volto"</div>
+          <div class="obj-row"><span class="obj-label">Motivo Real</span><span class="obj-val">Existe uma dúvida não dita. O cliente não se sente seguro o suficiente para decidir. Pode ser preço, medo, comparação com concorrente, ou necessidade de aprovação de alguém.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Identificar</span><span class="obj-val">O cliente fica vago, evita dar uma resposta clara, faz perguntas superficiais antes de ir embora.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Responder</span><span class="obj-val">Descubra o que está por trás do "vou pensar". Faça a pergunta direta com gentileza.</span></div>
+        </div>
+        <div class="script-box">
+          <div class="script-label">Exemplo de Diálogo</div>
+          <span class="cliente">Cliente: "Vou pensar e dou um retorno."</span><br><br>
+          <span class="vendedor">Vendedor: "Claro! Só para eu entender melhor e te ajudar da forma certa: o que especificamente você ainda precisa pensar? É o preço, alguma dúvida sobre o produto, ou tem outra opção que você está comparando?"</span><br><br>
+          <span class="cliente">Cliente: "É... quero pesquisar mais antes."</span><br><br>
+          <span class="vendedor">Vendedor: "Faz todo sentido. Posso te enviar um resumo por WhatsApp com as especificações, o cálculo de economia e o link da garantia oficial? Assim você tem tudo para comparar com tranquilidade. Qual é o seu número?"</span>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Regra de Follow-Up</div>
+          <p>Quem disse "vou pensar" deve receber follow-up em no máximo 24h. Mensagem curta, valor adicionado (nova informação, promoção, vídeo), sem pressão.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 5.3</span>
+        <h3>Objeção: "Preciso Falar com meu Marido/Esposa"</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="objection">
+          <div class="obj-header">"Preciso falar com meu marido / minha esposa"</div>
+          <div class="obj-row"><span class="obj-label">Motivo Real</span><span class="obj-val">Decisão financeira compartilhada. O cliente quer, mas não tem autonomia total para decidir. Às vezes é também uma forma de fugir da decisão no momento.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Identificar</span><span class="obj-val">Geralmente vem junto com sinais de interesse. O cliente gosta do produto mas usa o parceiro como escudo de decisão.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Responder</span><span class="obj-val">Validar, incluir o parceiro e antecipar as possíveis dúvidas dele/dela. Armar o cliente com os argumentos certos para convencer em casa.</span></div>
+        </div>
+        <div class="script-box">
+          <div class="script-label">Exemplo de Diálogo</div>
+          <span class="cliente">Cliente: "Eu gostei muito, mas preciso falar com minha esposa antes."</span><br><br>
+          <span class="vendedor">Vendedor: "Claro, e é muito importante tomar essa decisão juntos! Me diz uma coisa: qual acha que vai ser a principal dúvida dela?"</span><br><br>
+          <span class="cliente">Cliente: "Ela vai perguntar se é seguro e quanto custa pra manter."</span><br><br>
+          <span class="vendedor">Vendedor: "Perfeito. Então deixa eu te passar isso por escrito. A MotoChefe tem garantia de 1 ano, seguro exclusivo para a bateria pela Yelum Seguradora, e o custo de manutenção é mínimo comparado com moto a combustão. Posso te mandar um PDF resumido para você mostrar pra ela. Ela vai se tranquilizar. Posso confirmar pelo WhatsApp com você amanhã de manhã?"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 5.4</span>
+        <h3>Objeção: "Achei Mais Barato em Outro Lugar"</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="objection">
+          <div class="obj-header">"Achei mais barato na concorrência" / "Vi no mercado livre mais barato"</div>
+          <div class="obj-row"><span class="obj-label">Motivo Real</span><span class="obj-val">O cliente está comparando preço sem comparar valor. Produtos mais baratos geralmente carecem de garantia, assistência técnica, originalidade e suporte.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Identificar</span><span class="obj-val">O cliente cita um preço específico ou uma plataforma de marketplace. Pode ser genuíno ou uma tentativa de conseguir desconto.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Responder</span><span class="obj-val">Não deprecie o concorrente. Compare valor, não preço. Destaque diferenciais exclusivos: montadora nacional, garantia, assistência autorizada, seguro de bateria.</span></div>
+        </div>
+        <div class="script-box">
+          <div class="script-label">Exemplo de Diálogo</div>
+          <span class="cliente">Cliente: "Vi uma scooter elétrica no Mercado Livre por R$ 3.000 mais barata."</span><br><br>
+          <span class="vendedor">Vendedor: "Faz sentido comparar. Me deixa te ajudar a avaliar. Esse produto mais barato tem garantia oficial de 1 ano? Tem assistência técnica autorizada perto de você? A bateria tem seguro por uma seguradora como a Yelum? Tem montadora nacional que garante peças disponíveis?"</span><br><br>
+          <span class="cliente">Cliente: "Não sei, não verifiquei..."</span><br><br>
+          <span class="vendedor">Vendedor: "A MotoChefe tem tudo isso. E pensa comigo: se o produto travar daqui 2 meses, quem vai te atender? Na MotoChefe você tem 70+ lojas no Brasil, SAC dedicado, e o veículo é produzido aqui. Muitas vezes o barato sai caro. Mas a decisão é sua, e eu respeito."</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 5.5</span>
+        <h3>Objeção: "Não Confio / Não Conheço a Marca"</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="objection">
+          <div class="obj-header">"Nunca ouvi falar" / "Não sei se é confiável"</div>
+          <div class="obj-row"><span class="obj-label">Motivo Real</span><span class="obj-val">Falta de informação e medo do desconhecido. O cliente associa desconhecimento à risco. É uma barreira de confiança, não de produto.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Identificar</span><span class="obj-val">O cliente pergunta "há quanto tempo existe?", "quantos vocês venderam?", "quem usa isso?". Tom de ceticismo na voz.</span></div>
+          <div class="obj-row"><span class="obj-label">Como Responder</span><span class="obj-val">Construir credibilidade com dados concretos, nomes reconhecidos e evidências físicas (loja, produtos, documentos).</span></div>
+        </div>
+        <div class="script-box">
+          <div class="script-label">Exemplo de Diálogo</div>
+          <span class="cliente">Cliente: "Nunca ouvi falar dessa marca. É confiável?"</span><br><br>
+          <span class="vendedor">Vendedor: "Entendo a cautela. Deixa eu te contar: a MotoChefe está no mercado desde 2019, foi pioneira em scooters elétricas no Brasil, tem mais de 200 mil clientes satisfeitos, 70 lojas em todo o país e produção própria na Zona Franca de Manaus. Ronaldinho Gaúcho é embaixador da marca, e o Vasco da Gama é patrocinado por nós desde 2025. Tem seguro de bateria pela Yelum Seguradora, do Grupo HDI. Não é qualquer empresa que tem esse respaldo."</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 6 -->
+  <div id="m6" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 06</div>
+      <h2>Argumentação Comercial — Scripts Completos</h2>
+      <p class="subtitle">Scripts prontos e adaptáveis para cada canal de comunicação.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 6.1</span>
+        <h3>Script de WhatsApp</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Abordagem de Lead Frio (Primeiro Contato)</div>
+        <div class="script-box">
+          <div class="script-label">Mensagem de Boas-vindas — WhatsApp</div>
+          <span class="vendedor">Vendedor: "Olá, [nome]! 👋 Tudo bem? Sou [nome], da MotoChefe — líder em mobilidade elétrica no Brasil. Vi que você demonstrou interesse em nossos modelos. Posso te ajudar a encontrar a opção perfeita para o seu dia a dia? 😊"</span>
+        </div>
+        <div class="section-title">Abordagem de Lead Quente (Retomada)</div>
+        <div class="script-box">
+          <div class="script-label">Mensagem de Follow-Up — WhatsApp</div>
+          <span class="vendedor">Vendedor: "Oi [nome], tudo bem? Passando para ver se você teve a chance de pensar sobre a [modelo] que conversamos. Ela ainda está disponível na cor [cor] e posso garantir a entrega essa semana. Alguma dúvida que posso esclarecer?"</span>
+        </div>
+        <div class="section-title">Apresentação de Produto por WhatsApp</div>
+        <div class="script-box">
+          <div class="script-label">Apresentação Jet Max — WhatsApp</div>
+          <span class="vendedor">Vendedor: "Olha que incrível a Jet Max! 🚀 Motor de 1000W, 32 km/h, autonomia de até 55 km com bateria lítio 60V 30Ah. Sem CNH, sem placa, sem IPVA. E ainda vem com garantia de 1 ano e seguro exclusivo da bateria. É a escolha pra quem quer praticidade sem abrir mão de performance. Qual cor você prefere?"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 6.2</span>
+        <h3>Script de Atendimento Telefônico</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="script-box">
+          <div class="script-label">Abertura de Chamada</div>
+          <span class="vendedor">Vendedor: "MotoChefe, [nome] falando. Bom dia/tarde/noite! Como posso te ajudar?"</span><br><br>
+          <span class="cliente">Cliente: "Oi, quero saber sobre as scooters elétricas de vocês."</span><br><br>
+          <span class="vendedor">Vendedor: "Com prazer! Para te indicar o modelo ideal, posso te fazer só duas perguntas rápidas? Você tem CNH? E qual seria o uso principal — deslocamento diário, lazer ou trabalho?"</span>
+        </div>
+        <div class="script-box">
+          <div class="script-label">Encerramento e Próximo Passo</div>
+          <span class="vendedor">Vendedor: "Perfeito, [nome]! Com base no que você me disse, o modelo que mais combina com você é a [modelo]. Posso te enviar a ficha técnica completa agora pelo WhatsApp? E se quiser agendar uma visita para conhecer pessoalmente e testar, a gente faz isso também. Qual horário seria melhor para você?"</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 6.3</span>
+        <h3>Script de Atendimento Presencial</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="script-box">
+          <div class="script-label">Recepção na Loja</div>
+          <span class="vendedor">Vendedor: "Seja bem-vindo(a) à MotoChefe! Sou [nome]. Você veio dar uma olhada ou já tem algum modelo em mente?"</span><br><br>
+          <span class="cliente">Cliente: "Só quero ver as opções."</span><br><br>
+          <span class="vendedor">Vendedor: "Ótimo! A gente tem mais de 35 modelos. Para eu te guiar melhor: é pra uso pessoal ou trabalho? E você tem CNH?"</span>
+        </div>
+        <div class="script-box">
+          <div class="script-label">Apresentação na Loja — Momento de Sentar no Produto</div>
+          <span class="vendedor">Vendedor: "Sinta-se à vontade para sentar e experimentar. [Após sentar] Como está o conforto? O banco é ergonômico, pensado para o dia a dia. Veja aqui o painel digital e os 3 níveis de velocidade. Esta aqui é a bateria removível — você pode carregar em casa, no trabalho, em qualquer tomada. Prático demais."</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 6.4</span>
+        <h3>Scripts para Instagram e Leads de Anúncios</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Resposta a Comentário no Instagram</div>
+        <div class="script-box">
+          <div class="script-label">Resposta a Comentário Positivo</div>
+          <span class="vendedor">Vendedor: "Que incrível [nome]! 🙌 Fica à vontade para chamar no Direct que a gente te ajuda a encontrar o modelo perfeito. Tem unidade perto de você também! 🛵⚡"</span>
+        </div>
+        <div class="section-title">Abordagem de Lead de Anúncio (Meta Ads)</div>
+        <div class="script-box">
+          <div class="script-label">Primeira Mensagem — Lead de Anúncio</div>
+          <span class="vendedor">Vendedor: "Oi [nome]! Vi que você se interessou pela MotoChefe no anúncio. Que ótima escolha! 😄 Sou [nome] e quero te ajudar a sair daqui com o veículo ideal para você. Me conta: você prefere algo sem necessidade de CNH, ou tem habilitação e quer mais velocidade/autonomia?"</span>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Regra dos 5 Minutos</div>
+          <p>Leads de anúncios devem ser contactados em até <strong>5 minutos</strong> após a chegada. A conversão cai 80% após 30 minutos sem resposta.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 7 -->
+  <div id="m7" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 07</div>
+      <h2>Comparativos de Modelos</h2>
+      <p class="subtitle">Compare categorias e modelos para sempre indicar o produto certo para cada cliente.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 7.1</span>
+        <h3>Autopropelidos vs. Ciclomotores</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="comp-table">
+          <tr><th>Critério</th><th>Autopropelidos</th><th>Ciclomotores</th></tr>
+          <tr><td>Velocidade Máxima</td><td>32 km/h</td><td>50 km/h</td></tr>
+          <tr><td>Autonomia</td><td>Até 55 km</td><td>Até 70 km</td></tr>
+          <tr><td>CNH</td><td class="check">NÃO precisa</td><td class="cross">SIM (Cat. A ou ACC)</td></tr>
+          <tr><td>Emplacamento</td><td class="check">NÃO precisa</td><td class="cross">SIM obrigatório</td></tr>
+          <tr><td>IPVA</td><td class="check">NÃO</td><td class="cross">SIM</td></tr>
+          <tr><td>Público Ideal</td><td>Sem CNH, uso urbano leve</td><td>Com CNH, maior percurso</td></tr>
+          <tr><td>Vantagem Principal</td><td>Liberdade total, zero burocracia</td><td>Mais velocidade e autonomia</td></tr>
+          <tr><td>Desvantagem</td><td>Velocidade limitada a 32 km/h</td><td>Exige documentação e custo adicional</td></tr>
+          <tr><td>Garantia Motor/Bateria</td><td>1 ano</td><td>1 ano</td></tr>
+        </table>
+        <div class="success-box">
+          <div class="info-label">Argumento Decisivo</div>
+          <p>Para o cliente que ainda não tem CNH: "Com o autopropelido você já começa a rodar hoje. Sem burocracia, sem espera, sem custo de emplacamento. Zero complicação."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 7.2</span>
+        <h3>Comparativo dos Modelos Autopropelidos</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="comp-table">
+          <tr><th>Modelo</th><th>Potência</th><th>Autonomia</th><th>Bateria</th><th>Perfil do Cliente</th></tr>
+          <tr><td>Jet Max</td><td>1000W</td><td>55 km</td><td>60V 30Ah</td><td>Quer maior autonomia, design robusto</td></tr>
+          <tr><td>Giga</td><td>1000W</td><td>40 km</td><td>Removível c/ alça + NFC</td><td>Quer tecnologia de ponta e visual futurista</td></tr>
+          <tr><td>X12</td><td>1000W</td><td>40 km</td><td>Lítio</td><td>Quer compacidade e praticidade urbana</td></tr>
+          <tr><td>BOB</td><td>1000W</td><td>40 km</td><td>Removível</td><td>Precisa de cesta, dois passageiros, uso versátil</td></tr>
+          <tr><td>JET</td><td>1000W</td><td>40 km</td><td>Removível</td><td>Quer alarme, freio a disco, design moderno</td></tr>
+          <tr><td>Joy Super</td><td>800W</td><td>40 km</td><td>60V</td><td>Carga até 150 kg, dois lugares, suspensão dupla</td></tr>
+          <tr><td>MC20/MC21 Mini</td><td>1000W</td><td>40 km</td><td>Lítio</td><td>Quer o menor e mais moderno da linha</td></tr>
+          <tr><td>Mia</td><td>1000W</td><td>40 km</td><td>60V 20Ah removível</td><td>Mulher, design charmoso, alarme, 3 velocidades</td></tr>
+          <tr><td>Sofia</td><td>1000W</td><td>40 km</td><td>Lítio</td><td>Quer design retrô com tecnologia moderna</td></tr>
+          <tr><td>Joy Classic</td><td>600W</td><td>40 km</td><td>60V</td><td>Quer estilo retrô, uso leve</td></tr>
+          <tr><td>Joyzinha</td><td>600W</td><td>40 km</td><td>Lítio</td><td>Compacta, estilosa, para curtas distâncias</td></tr>
+          <tr><td>RET / SOMA</td><td>1000W</td><td>40 km</td><td>60V</td><td>Deslocamento urbano padrão, boa relação custo-valor</td></tr>
+        </table>
+        <div class="section-title">Qual Modelo Recomendar por Situação</div>
+        <ul>
+          <li><strong>Maior autonomia disponível:</strong> Jet Max (55 km)</li>
+          <li><strong>Mais tecnológico:</strong> Giga (NFC, painel digital, bateria c/ alça)</li>
+          <li><strong>Dois passageiros + carga:</strong> BOB ou MC20 Mini</li>
+          <li><strong>Público feminino:</strong> Mia, Sofia, Joyzinha, Joy Classic</li>
+          <li><strong>Melhor custo-benefício básico:</strong> Joy Classic ou RET</li>
+          <li><strong>Delivery e trabalho:</strong> BOB (cesta frontal)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 7.3</span>
+        <h3>Autopropelidos vs. E-Bikes vs. Triciclos</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="comp-table">
+          <tr><th>Critério</th><th>Autopropelido</th><th>E-Bike</th><th>Triciclo</th></tr>
+          <tr><td>Precisão de Pedalar</td><td class="check">Não</td><td class="cross">Sim (assistida)</td><td class="check">Não</td></tr>
+          <tr><td>CNH</td><td class="check">Não</td><td class="check">Não</td><td class="cross">Sim</td></tr>
+          <tr><td>Estabilidade</td><td>Média</td><td>Baixa</td><td class="check">Alta (3 rodas)</td></tr>
+          <tr><td>Velocidade</td><td>32 km/h</td><td>Regulamentado</td><td>50 km/h</td></tr>
+          <tr><td>Ideal Para</td><td>Mobilidade urbana ágil</td><td>Saúde + mobilidade</td><td>Terceira idade, dificuldade de equilíbrio</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 8 -->
+  <div id="m8" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 08</div>
+      <h2>Garantia e Suporte MotoChefe</h2>
+      <p class="subtitle">Conheça integralmente os termos oficiais de garantia do veículo e da bateria. Essencial para o vendedor e para o cliente.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 8.1</span>
+        <h3>Contrato de Garantia do Veículo — Regras Gerais</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Vigência da Garantia</div>
+        <p>A garantia entra em vigor na data de emissão da nota fiscal e está condicionada à apresentação do Termo de Garantia juntamente com a nota fiscal.</p>
+        <table class="spec-table">
+          <tr><th>Componente</th><th>Prazo</th></tr>
+          <tr><td>Motor, Bateria e Módulo</td><td>1 (um) ano — defeitos por uso normal</td></tr>
+          <tr><td>Montagem e Demais Componentes</td><td>3 (três) meses</td></tr>
+          <tr><td>Parte Elétrica</td><td>6 (seis) meses</td></tr>
+        </table>
+        <div class="info-box">
+          <div class="info-label">Garantia Legal Incluída</div>
+          <p>Os prazos acima incluem a garantia legal de 90 dias prevista no Art. 26, II, do Código de Defesa do Consumidor (Lei nº 8.078/1990). Contagem: data da venda na nota fiscal.</p>
+        </div>
+        <div class="section-title">Abrangência da Garantia</div>
+        <p>A garantia cobre reparos necessários decorrentes de <strong>falha material, montagem ou fabricação</strong>, desde que reconhecidos como defeituosos pelo fabricante.</p>
+        <div class="warning-box">
+          <div class="info-label">Atenção — Mau Uso Não é Coberto</div>
+          <p>Danos decorrentes de negligência, mau uso, danos causados por água, desrespeito às boas práticas de condução, legislações de trânsito (Resoluções e Portarias do CONTRAN e CTB), ou instruções do Manual do Proprietário são classificados como "Mau Uso" e NÃO são cobertos.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 8.2</span>
+        <h3>Itens NÃO Cobertos pela Garantia do Veículo</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Itens de Desgaste Natural</div>
+        <p>Componentes sujeitos a desgaste natural devido ao uso devem ser substituídos periodicamente. Contam com garantia legal de 90 dias contra defeitos de fabricação. Após esse período, os custos são do proprietário.</p>
+        <ul>
+          <li>Pneus, lâmpadas, componentes do sistema de freio (discos, sapatas, cabos, pastilhas, cubos), amortecedores e cabos</li>
+          <li>Descoloração ou alteração de tonalidade de superfícies</li>
+          <li>Oxidação ou corrosão por maresia, exposição a ambiente agressivo ou lavagem incorreta</li>
+          <li>Desgaste de peças plásticas</li>
+          <li>Danos decorrentes de uso inadequado, excesso de peso ou impactos</li>
+          <li>Ocorrências que não afetam a segurança ou funcionamento do veículo (ex.: leves ruídos mecânicos)</li>
+          <li>Lubrificantes não especificados ou de baixa qualidade aplicados nos freios</li>
+          <li>Procedimentos de limpeza incorretos</li>
+          <li>Serviços de ajuste</li>
+          <li>Danos por desuso prolongado (bateria descarregada, pneus deformados etc.)</li>
+          <li>Trincas ou manchas causadas por manuseio inadequado</li>
+          <li>Danos ao motor por imersão em água</li>
+          <li>Danos elétricos por uso de acessórios não originais</li>
+          <li>Desgaste por atrito em assento, manoplas, carenagens etc.</li>
+        </ul>
+        <div class="section-title">Extinção da Garantia — Hipóteses</div>
+        <ul>
+          <li>Término do prazo legal</li>
+          <li>Não cumprimento das recomendações do Termo de Garantia ou Manual do Proprietário</li>
+          <li>Adulteração do odômetro</li>
+          <li>Uso acima da capacidade permitida (passageiros, carga ou reboque)</li>
+          <li>Sinistros por fenômenos naturais ou externos (incêndios, imersão parcial ou total, acidentes, roubos)</li>
+          <li>Reparos ou revisões realizados fora das concessionárias ou assistências autorizadas</li>
+          <li>Revisões não efetuadas dentro do prazo estipulado (tolerância de 100 km)</li>
+          <li>Uso em competições ou práticas não previstas pelo fabricante</li>
+          <li>Alterações não autorizadas pelo fabricante</li>
+          <li>Uso de peças ou acessórios não originais que comprometam qualidade ou segurança</li>
+          <li>Danos constatados sem relação com uso normal</li>
+          <li>Item reclamado removido ou desmontado fora de assistência autorizada</li>
+        </ul>
+        <div class="warning-box">
+          <div class="info-label">Retirada do Veículo da Assistência</div>
+          <p>Após a conclusão do serviço, o cliente terá <strong>48 horas</strong> para retirar o veículo da loja, sob pena de cobrança de taxa diária de <strong>R$ 20,00 (vinte reais)</strong>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 8.3</span>
+        <h3>Termo de Seguro da Bateria — Cobertura Completa</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Definições Técnicas</div>
+        <ul>
+          <li><strong>Defeito funcional:</strong> Todo defeito repentino ou espontâneo de origem mecânica ou elétrica que impeça o funcionamento normal do bem segurado, reduzindo seu desempenho funcional normal conforme especificado pelo fabricante.</li>
+          <li><strong>Defeitos preexistentes:</strong> Defeitos existentes nos bens garantidos antes do término da garantia legal e do início de vigência da garantia contratual.</li>
+        </ul>
+        <div class="section-title">Âmbito de Cobertura</div>
+        <p>A proteção cobre o pagamento de indenização nos seguintes eventos:</p>
+        <ul>
+          <li><strong>a)</strong> Ocorrência de incêndio iniciado na bateria, de origem interna, por defeito funcional</li>
+          <li><strong>b)</strong> Ocorrência de explosão autônoma da bateria, oriunda de falha elétrica interna ou curto-circuito interno</li>
+        </ul>
+        <div class="section-title">Riscos Excluídos — Seguro da Bateria</div>
+        <ul>
+          <li>Atos ilícitos dolosos ou culpa grave equiparável ao dolo praticado pelo Garantido</li>
+          <li>Má-fé, fraude, simulação, danos de qualquer natureza por atos ilícitos dolosos</li>
+          <li>Danos materiais causados a bens emprestados ao Garantido</li>
+          <li>Indenizações decorrentes de caso fortuito e força maior (art. 393 do Código Civil)</li>
+          <li>Prejuízos e/ou perdas financeiras, inclusive lucros cessantes</li>
+          <li>Desgaste natural decorrente do uso e ciclos de carga, incluindo diminuição gradual da autonomia</li>
+          <li>Danos causados por sobrecarga, inversão de polaridade ou uso de carregador inadequado</li>
+          <li>Incêndios ou explosões decorrentes de sobrecarga, uso de carregadores inadequados, modificação do sistema elétrico ou utilização fora dos padrões recomendados</li>
+          <li>Baterias violadas, abertas ou com lacres rompidos, adulterações ou sinais de manuseio inadequado</li>
+          <li>Incêndios causados por fatores externos à bateria (impacto, queda, colisão, exposição prolongada ao sol, contato com líquidos inflamáveis)</li>
+          <li>Danos causados por oscilações ou falhas na rede elétrica</li>
+          <li>Falta de comunicação imediata à Garantidora de falhas observadas anteriormente ao evento</li>
+        </ul>
+        <div class="section-title">Procedimento em Caso de Ocorrência</div>
+        <ol>
+          <li>Comunicar a ocorrência em até <strong>48 horas</strong> após o evento pelos canais oficiais da MotoChefe (SAC)</li>
+          <li>Entregar a bateria para análise com os seguintes documentos:
+            <ul>
+              <li>Documento fiscal de aquisição do bem</li>
+              <li>CPF ou outro documento de identificação</li>
+              <li>Quadro de revisões periódicas em dia</li>
+              <li>Laudo do Corpo de Bombeiros, se aplicável</li>
+              <li>Bateria ou seus vestígios para análise técnica</li>
+              <li>Laudo técnico da rede elétrica do local do evento, emitido por profissional habilitado</li>
+              <li>Comprovação de que a utilização seguiu as orientações técnicas fornecidas na compra</li>
+            </ul>
+          </li>
+        </ol>
+        <div class="section-title">Prazos da Indenização</div>
+        <table class="spec-table">
+          <tr><th>Etapa</th><th>Prazo</th></tr>
+          <tr><td>Envio ao técnico especializado</td><td>Até 5 dias úteis após entrega do bem</td></tr>
+          <tr><td>Avaliação técnica e emissão de laudo</td><td>Até 10 dias úteis após abertura da inspeção</td></tr>
+          <tr><td>Pagamento da indenização</td><td>Até 30 dias corridos após protocolo do laudo conclusivo</td></tr>
+        </table>
+        <div class="section-title">Atraso no Pagamento</div>
+        <p>O não pagamento no prazo sujeitará a MotoChefe ao pagamento de <strong>multa moratória de 2%</strong> sobre o valor devido (atualizado pelo IPCA), além de <strong>juros legais de 1% ao mês</strong>, aplicados pro rata temporis.</p>
+        <div class="section-title">Vigência e Renovação</div>
+        <p>O seguro da bateria vigora por <strong>1 (um) ano</strong> a partir da data de aquisição. A renovação não é automática — é facultada exclusivamente à MotoChefe, a seu critério.</p>
+        <div class="info-box">
+          <div class="info-label">Natureza Jurídica</div>
+          <p>Este termo não constitui contrato de seguro, mas sim <strong>garantia contratual adicional</strong>, com natureza de cobertura civil limitada. A garantia da bateria é coberta pela Yelum Seguradora (Grupo HDI), apólice nº 51.38.2025.0000324.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 8.4</span>
+        <h3>Cartilha da Bateria — 14 Regras Essenciais</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Cuidados na Recarga</div>
+        <ol>
+          <li><strong>Nunca deixe a bateria carregando durante a noite.</strong> O tempo máximo de carregamento é de 8 horas.</li>
+          <li><strong>Acompanhe o carregamento.</strong> Confira se a luz verde do carregador se mantém acesa durante o carregamento.</li>
+          <li><strong>Conecte o carregador diretamente na tomada de parede.</strong> Evite o uso de extensões, filtros de linha ou adaptadores.</li>
+          <li><strong>Carregue sempre em local aberto, ventilado e protegido.</strong> Isso reduz o risco de superaquecimento.</li>
+          <li><strong>Jamais carregue a bateria exposta ao sol</strong>, seja fora do veículo ou instalada nele.</li>
+        </ol>
+        <div class="section-title">Manuseio e Segurança</div>
+        <ol start="6">
+          <li><strong>Evite contato de objetos metálicos com os conectores da bateria.</strong> Isso evita risco de curto-circuito e incêndio.</li>
+          <li><strong>Mantenha a tomada da bateria sempre tampada.</strong> Isso protege os conectores contra poeira e umidade.</li>
+          <li><strong>É proibido qualquer tipo de reparo nas baterias MotoChefe.</strong> Caso isso ocorra, a garantia será automaticamente cancelada.</li>
+        </ol>
+        <div class="section-title">Baterias e Carregadores Oficiais</div>
+        <ol start="9">
+          <li><strong>Utilize apenas baterias e carregadores originais MotoChefe.</strong> Disponíveis exclusivamente em lojas e franquias autorizadas.</li>
+          <li><strong>Evite produtos recondicionados ou de procedência duvidosa.</strong></li>
+        </ol>
+        <div class="section-title">Uso e Armazenamento</div>
+        <ol start="11">
+          <li><strong>Após o uso do veículo, aguarde cerca de 30 minutos</strong> para o resfriamento da bateria antes de colocá-la para carregar.</li>
+          <li><strong>Não exceda o peso máximo permitido do veículo</strong> e mantenha os pneus calibrados. Isso preserva o sistema elétrico e a autonomia.</li>
+          <li><strong>Evite deixar a bateria descarregar completamente.</strong> Recarregue antes que a carga se esgote totalmente.</li>
+          <li><strong>Para armazenamentos superiores a 1 mês</strong>, mantenha a carga entre 60% e 80%. Recarregue a cada 3 meses.</li>
+        </ol>
+        <div class="info-box">
+          <div class="info-label">Frase da Cartilha de Bateria</div>
+          <p>"A bateria é o coração do seu veículo elétrico. O uso correto garante segurança, desempenho e maior durabilidade. Seguindo estas orientações, você garante mais segurança, autonomia e vida útil para sua bateria."</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 8.5</span>
+        <h3>Cartilha de Boas Maneiras no Trânsito</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Regras de Condução</div>
+        <ol>
+          <li>O uso do <strong>capacete</strong> é para sua segurança.</li>
+          <li>Respeite os <strong>limites de velocidade</strong> da via.</li>
+          <li>Ao mudar de faixa ou fazer conversões, sinalize com antecedência usando as <strong>setas</strong>.</li>
+          <li>Sempre <strong>olhe duas vezes</strong> antes de mudar de faixa.</li>
+          <li>Evite andar em <strong>pontos cegos</strong> de ônibus, carros e caminhões.</li>
+          <li>Não circule nos <strong>corredores</strong> entre veículos em movimento acima da velocidade compatível da via.</li>
+          <li>Só <strong>ultrapasse</strong> pela esquerda em local permitido e seguro, respeitando as leis de trânsito.</li>
+          <li>Mantenha a <strong>distância segura</strong> do veículo à frente (mínimo 5 segundos).</li>
+          <li><strong>Pedestre</strong> sempre tem prioridade.</li>
+          <li>Nunca ultrapasse o <strong>semáforo vermelho</strong>.</li>
+          <li>Respeite a <strong>sinalização</strong> — placas, semáforos e faixas.</li>
+          <li>Ao andar na calçada com sua bike ou autopropelido, não ultrapasse a velocidade máxima de <strong>6 km/h</strong> de acordo com a resolução.</li>
+        </ol>
+        <div class="section-title">Cuidados Preventivos com o Veículo</div>
+        <ul>
+          <li>Revisão periódica de freios, pneus, faróis e buzina</li>
+          <li>Pneus sempre calibrados de acordo com o manual</li>
+          <li>Freios ajustados para evitar travamentos</li>
+          <li>Bateria e parte elétrica sempre em ordem</li>
+        </ul>
+        <p><strong>OBS:</strong> É indicado realizar as revisões de <strong>3 em 3 meses</strong> ou a cada <strong>2.000 km rodados</strong>, o que acontecer primeiro.</p>
+        <div class="section-title">Sinalização</div>
+        <table class="spec-table">
+          <tr><th>Sinal</th><th>Significado</th><th>Ação Correta</th></tr>
+          <tr><td>Semáforo Vermelho</td><td>Pare!</td><td>Não avance em hipótese nenhuma</td></tr>
+          <tr><td>Semáforo Amarelo</td><td>Atenção</td><td>O sinal vai fechar — reduza a velocidade</td></tr>
+          <tr><td>Semáforo Verde</td><td>Siga</td><td>Sempre olhando os dois lados, dando preferência a pedestres</td></tr>
+          <tr><td>Placa PARE</td><td>Obrigação de parar totalmente</td><td>Só siga após certificar que a via está livre. Nunca pare em cima da faixa de pedestre.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 8.6</span>
+        <h3>Termos de Responsabilidade — Autopropelido e Ciclomotor</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Termo de Responsabilidade — Autopropelido</div>
+        <p>Ao adquirir um veículo tipo <strong>bike elétrica autopropelida</strong>, o comprador declara:</p>
+        <ul>
+          <li>Estar ciente dos termos de garantia do veículo adquirido</li>
+          <li>Que o produto adquirido é um equipamento de mobilidade individual denominado <strong>autopropelido e/ou bicicleta elétrica</strong>, totalmente adequado ao Artigo 2º da Resolução CONTRAN nº 996 de 15 de junho de 2023</li>
+          <li>Que qualquer alteração no produto que o torne incompatível com a referida Resolução é de <strong>inteira responsabilidade do comprador</strong></li>
+          <li>Que vistoriou e testou o produto, estando em perfeitas condições de uso</li>
+          <li>A MotoChefe transfere a posse ao comprador, que passa a ser <strong>responsável civil e criminal</strong> por todos os atos praticados com o produto</li>
+        </ul>
+        <div class="section-title">Termo de Responsabilidade — Ciclomotores</div>
+        <p>Ao adquirir um <strong>ciclomotor elétrico</strong>, o comprador declara:</p>
+        <ul>
+          <li>Estar informado e advertido quanto às Leis, normas e Portarias vigentes do CTB e CONTRAN sobre ciclomotores elétricos</li>
+          <li>Ciência sobre as normativas de <strong>emplacamento e habilitação (Categoria A ou ACC)</strong> para pilotagem</li>
+          <li>Ciência de que é passível de multa e outras sanções conforme diretrizes dos órgãos de trânsito competentes</li>
+          <li>Que, caso a retirada seja feita antes dos prazos para regularização, é de <strong>inteira responsabilidade do comprador</strong></li>
+          <li>Que vistoriou e testou o produto, estando em perfeitas condições de uso</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 9 -->
+  <div id="m9" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 09</div>
+      <h2>Certificação MotoChefe</h2>
+      <p class="subtitle">Teste seu conhecimento, pratique com estudos de caso e obtenha sua certificação oficial.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 9.1</span>
+        <h3>Questionário — Empresa e Portfólio</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="quiz-question">
+          <div class="quiz-q-header">1. Em que ano a MotoChefe foi fundada?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">2015</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">2017</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">2019</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">2021</div>
+          </div>
+          <div class="quiz-feedback">A MotoChefe foi fundada em 2019, sendo uma das pioneiras na comercialização de scooters elétricas no Brasil.</div>
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-header">2. Onde está localizada a montadora da MotoChefe?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">São Paulo</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">Zona Franca de Manaus</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Rio de Janeiro</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Curitiba</div>
+          </div>
+          <div class="quiz-feedback">A montadora própria está na Zona Franca de Manaus, garantindo agilidade, controle de qualidade e eficiência.</div>
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-header">3. Qual é a velocidade máxima dos autopropelidos MotoChefe?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">25 km/h</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">32 km/h</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">45 km/h</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">50 km/h</div>
+          </div>
+          <div class="quiz-feedback">32 km/h conforme a Resolução CONTRAN nº 996 de 15 de junho de 2023.</div>
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-header">4. Qual modelo de autopropelido tem a MAIOR autonomia disponível?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Giga</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">BOB</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">Jet Max (55 km)</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Joy Super</div>
+          </div>
+          <div class="quiz-feedback">O Jet Max possui bateria de lítio 60V 30Ah e autonomia de até 55 km — maior entre os autopropelidos.</div>
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-header">5. Autopropelidos exigem CNH e emplacamento?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">Não — são dispensados por lei (CONTRAN nº 996/2023)</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Sim — exigem CNH categoria B</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Somente emplacamento, não CNH</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Depende do estado</div>
+          </div>
+          <div class="quiz-feedback">Autopropelidos são dispensados de CNH e emplacamento conforme Resolução CONTRAN nº 996/2023.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 9.2</span>
+        <h3>Questionário — Garantia e Procedimentos</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="quiz-question">
+          <div class="quiz-q-header">6. Qual o prazo de garantia do MOTOR e BATERIA?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">3 meses</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">6 meses</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">1 ano</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">2 anos</div>
+          </div>
+          <div class="quiz-feedback">Motor, Bateria e Módulo têm garantia de 1 (um) ano para defeitos por uso normal, incluindo a garantia legal de 90 dias do CDC.</div>
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-header">7. Em quanto tempo o cliente deve comunicar um sinistro da bateria após o evento?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">24 horas</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">48 horas</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">72 horas</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">5 dias úteis</div>
+          </div>
+          <div class="quiz-feedback">O Garantido deve comunicar a ocorrência em até 48 horas após o evento pelos canais oficiais da MotoChefe.</div>
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-header">8. O seguro exclusivo da bateria é garantido por qual seguradora?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Porto Seguro</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">SulAmérica</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">Yelum Seguradora (Grupo HDI)</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Bradesco Seguros</div>
+          </div>
+          <div class="quiz-feedback">Yelum Seguradora, integrante do Grupo HDI Seguros, apólice nº 51.38.2025.0000324.</div>
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-header">9. Qual é o tempo máximo de carregamento de uma bateria MotoChefe?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">4 horas</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">6 horas</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">8 horas</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">12 horas</div>
+          </div>
+          <div class="quiz-feedback">O tempo máximo de carregamento é de 8 horas. Nunca deixar carregando durante a noite.</div>
+        </div>
+        <div class="quiz-question">
+          <div class="quiz-q-header">10. Com que frequência deve ser feita a revisão do veículo?</div>
+          <div class="quiz-options">
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">A cada 6 meses ou 5.000 km</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'correct')">A cada 3 meses ou 2.000 km (o que ocorrer primeiro)</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Apenas quando sentir problema</div>
+            <div class="quiz-option" onclick="answerQuiz(this,'wrong')">Anualmente</div>
+          </div>
+          <div class="quiz-feedback">É indicado realizar as revisões de 3 em 3 meses ou a cada 2.000 km rodados, o que acontecer primeiro.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 9.3</span>
+        <h3>Estudos de Caso — Simulações de Atendimento</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="section-title">Caso 1 — Cliente sem CNH que quer "moto"</div>
+        <div class="info-box">
+          <div class="info-label">Situação</div>
+          <p>Um cliente de 22 anos entra na loja dizendo: "Quero uma moto para ir ao trabalho, mas não tenho CNH." O que você faz?</p>
+        </div>
+        <div class="success-box">
+          <div class="info-label">Resposta Ideal</div>
+          <p>Apresentar os autopropelidos, explicando que não precisam de CNH nem emplacamento. Qualificar a distância do percurso para definir o modelo pela autonomia. Se percurso for até 40 km, a maioria dos modelos atende. Se for mais, indicar o Jet Max (55 km). Ao vender, fazer assinar o Termo de Responsabilidade — Autopropelido.</p>
+        </div>
+        <div class="section-title">Caso 2 — Cliente quer ciclomotor mas não tem CNH</div>
+        <div class="info-box">
+          <div class="info-label">Situação</div>
+          <p>Cliente pede para ver um ciclomotor porque quer 50 km/h. Ao qualificar, você descobre que ele não tem CNH. O que fazer?</p>
+        </div>
+        <div class="success-box">
+          <div class="info-label">Resposta Ideal</div>
+          <p>Explicar a diferença legal com transparência. O ciclomotor exige CNH Cat. A ou ACC obrigatoriamente. Oferecer dois caminhos: (1) mostrar os autopropelidos como solução imediata, ou (2) tirar CNH e retornar para o ciclomotor. Nunca vender ciclomotor para quem não tem CNH sem esclarecer as obrigações legais — o vendedor pode ser responsabilizado.</p>
+        </div>
+        <div class="section-title">Caso 3 — Cliente acionando garantia por bateria que ele mesmo abriu</div>
+        <div class="info-box">
+          <div class="info-label">Situação</div>
+          <p>Cliente vem à loja dizendo que a bateria parou de funcionar após ele mesmo tentar "consertar" abrindo a bateria. Pede garantia.</p>
+        </div>
+        <div class="warning-box">
+          <div class="info-label">Resposta Correta</div>
+          <p>A garantia NÃO se aplica neste caso. O Termo de Seguro da Bateria e o Contrato de Garantia são claros: "É proibido qualquer tipo de reparo nas baterias MotoChefe. Caso isso ocorra, a garantia será automaticamente cancelada." Além disso, "baterias violadas, abertas ou com lacres rompidos" estão expressamente excluídas do seguro. Explique isso ao cliente com empatia, sem confronto, e oriente sobre o custo de substituição da bateria por peça original.</p>
+        </div>
+        <div class="section-title">Caso 4 — Cliente que quer saber se o seguro de bateria cobre roubo</div>
+        <div class="info-box">
+          <div class="info-label">Situação</div>
+          <p>Cliente pergunta se o seguro exclusivo da bateria cobre roubos.</p>
+        </div>
+        <div class="warning-box">
+          <div class="info-label">Resposta Correta</div>
+          <p>Não cobre. O seguro exclusivo da bateria cobre apenas dois eventos: (1) incêndio iniciado internamente na bateria por defeito funcional; (2) explosão autônoma da bateria por falha elétrica interna ou curto-circuito interno. Roubo não está no âmbito de cobertura. Para cobertura contra roubo, o cliente deve contratar um seguro convencional separado.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">AULA 9.4</span>
+        <h3>Certificado de Conclusão</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <div class="cert-box">
+          <div class="cert-title">Universidade Corporativa MotoChefe</div>
+          <div class="cert-h">Certificado de Conclusão</div>
+          <div class="cert-sub" style="margin-top:16px;font-size:15px;color:#ccc;">Este certificado atesta que o portador concluiu com êxito todos os módulos do Programa de Formação de Vendedores MotoChefe, demonstrando domínio completo do portfólio, técnicas de vendas, contorno de objeções, procedimentos de garantia e suporte ao cliente.</div>
+          <div style="margin-top:30px;border-top:1px solid #333;padding-top:24px;display:flex;justify-content:space-between;">
+            <div style="text-align:left;">
+              <div style="font-size:11px;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Aprendiz</div>
+              <div style="border-bottom:1px solid #444;width:200px;height:24px;"></div>
+              <div style="font-size:11px;color:#666;margin-top:4px;">Nome Completo</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:24px;font-weight:900;color:#F5C842;">MC</div>
+              <div style="font-size:10px;color:#555;letter-spacing:2px;">ACADEMY</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:11px;color:#555;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Data</div>
+              <div style="border-bottom:1px solid #444;width:160px;height:24px;"></div>
+              <div style="font-size:11px;color:#666;margin-top:4px;">____/____/______</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULO 10 -->
+  <div id="m10" class="module-page">
+    <div class="page-header">
+      <div class="eyebrow">Módulo 10</div>
+      <h2>Manual de Consulta Rápida</h2>
+      <p class="subtitle">Guia operacional para uso imediato no dia a dia de vendas.</p>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">REF 10.1</span>
+        <h3>Referência Rápida — Modelos e Especificações</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="quick-table">
+          <tr><th>Modelo</th><th>Cat.</th><th>Potência</th><th>Veloc.</th><th>Autonomia</th><th>CNH</th><th>Diferencial</th></tr>
+          <tr><td><strong>Jet Max</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>55 km</td><td>Não</td><td>Maior autonomia da linha — Bat. 60V 30Ah</td></tr>
+          <tr><td><strong>Giga</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>40 km</td><td>Não</td><td>NFC, painel digital, visual futurista</td></tr>
+          <tr><td><strong>X12</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>40 km</td><td>Não</td><td>Compacta, tecnológica</td></tr>
+          <tr><td><strong>BOB</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>40 km</td><td>Não</td><td>Cesta frontal, freios hidráulicos, 2 lugares</td></tr>
+          <tr><td><strong>JET</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>40 km</td><td>Não</td><td>Alarme antifurto, freio a disco</td></tr>
+          <tr><td><strong>Joy Super</strong></td><td>Auto</td><td>800W</td><td>32</td><td>40 km</td><td>Não</td><td>Suporta até 150 kg, 2 lugares, susp. dupla</td></tr>
+          <tr><td><strong>MC20/MC21 Mini</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>40 km</td><td>Não</td><td>Compacto, moderno, suspenção reforçada</td></tr>
+          <tr><td><strong>Mia</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>40 km</td><td>Não</td><td>Bat. 60V 20Ah, alarme, 3 velocidades, charme</td></tr>
+          <tr><td><strong>Sofia</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>40 km</td><td>Não</td><td>Design retrô + tecnologia moderna</td></tr>
+          <tr><td><strong>Joy Classic</strong></td><td>Auto</td><td>600W</td><td>32</td><td>40 km</td><td>Não</td><td>Estilo retrô, leve, econômica</td></tr>
+          <tr><td><strong>Joyzinha</strong></td><td>Auto</td><td>600W</td><td>32</td><td>40 km</td><td>Não</td><td>Compacta, estilosa, jovem</td></tr>
+          <tr><td><strong>RET / SOMA</strong></td><td>Auto</td><td>1000W</td><td>32</td><td>40 km</td><td>Não</td><td>Uso urbano padrão, custo-benefício</td></tr>
+          <tr><td><strong>Ciclomotores</strong></td><td>Ciclo</td><td>—</td><td>50</td><td>70 km</td><td><strong>SIM</strong></td><td>Mais veloz, maior autonomia, exige doc.</td></tr>
+          <tr><td><strong>Triciclos</strong></td><td>Tric.</td><td>—</td><td>50</td><td>70 km</td><td><strong>SIM</strong></td><td>Estabilidade, terceira idade</td></tr>
+          <tr><td><strong>E-Bikes</strong></td><td>Bike</td><td>—</td><td>—</td><td>—</td><td>Não</td><td>Pedalada assistida, saúde + mobilidade</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">REF 10.2</span>
+        <h3>Referência Rápida — Garantias</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="quick-table">
+          <tr><th>Item</th><th>Prazo</th><th>Observação</th></tr>
+          <tr><td>Motor + Bateria + Módulo</td><td>1 ANO</td><td>Início: data da nota fiscal</td></tr>
+          <tr><td>Parte Elétrica</td><td>6 MESES</td><td>Inclui garantia legal de 90 dias</td></tr>
+          <tr><td>Montagem e Componentes</td><td>3 MESES</td><td>Inclui garantia legal de 90 dias</td></tr>
+          <tr><td>Seguro da Bateria (incêndio/explosão)</td><td>1 ANO</td><td>Yelum Seguradora — Apólice 51.38.2025.0000324</td></tr>
+          <tr><td>Revisão obrigatória</td><td>3 meses / 2.000 km</td><td>O que ocorrer primeiro. Tolerância: 100 km</td></tr>
+          <tr><td>Retirada do veículo após serviço</td><td>48 horas</td><td>Após: taxa diária de R$ 20,00</td></tr>
+          <tr><td>Comunicação de sinistro de bateria</td><td>48 horas</td><td>Após o evento, pelos canais oficiais</td></tr>
+          <tr><td>Envio ao técnico especializado</td><td>5 dias úteis</td><td>Após entrega do bem + documentação</td></tr>
+          <tr><td>Emissão do laudo técnico</td><td>10 dias úteis</td><td>Após abertura da inspeção</td></tr>
+          <tr><td>Pagamento da indenização</td><td>30 dias corridos</td><td>Após protocolo do laudo conclusivo</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">REF 10.3</span>
+        <h3>Referência Rápida — Documentos da Venda</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="quick-table">
+          <tr><th>Documento</th><th>Quando Usar</th><th>Campos Obrigatórios</th></tr>
+          <tr><td>Nota Fiscal</td><td>Toda venda</td><td>Dados do produto, cliente, valor</td></tr>
+          <tr><td>Termo de Responsabilidade — Autopropelido</td><td>Venda de autopropelido</td><td>Nome, CPF, endereço, modelo, chassi, NF</td></tr>
+          <tr><td>Termo de Responsabilidade — Ciclomotor</td><td>Venda de ciclomotor</td><td>Nome, CPF, endereço, modelo, chassi, NF</td></tr>
+          <tr><td>Contrato de Garantia</td><td>Toda venda de veículo</td><td>Dados do cliente + assinatura</td></tr>
+          <tr><td>Termo de Seguro da Bateria</td><td>Toda venda</td><td>Data da venda, data do vencimento, ID da bateria</td></tr>
+          <tr><td>Certificado Seguro da Bateria (Yelum)</td><td>Toda venda</td><td>Nome, CPF, data nasc., NF, modelo, cor, ID bateria, unidade</td></tr>
+          <tr><td>Cartilha de Bateria</td><td>Toda venda (entregar ao cliente)</td><td>Assinatura do cliente + data + cidade</td></tr>
+          <tr><td>Cartilha de Boas Maneiras no Trânsito</td><td>Toda venda (entregar ao cliente)</td><td>—</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">REF 10.4</span>
+        <h3>Referência Rápida — Contatos e Canais</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="quick-table">
+          <tr><th>Canal</th><th>Contato</th><th>Horário</th></tr>
+          <tr><td>SAC — Atendimento Geral</td><td>(21) 96679-0202</td><td>Seg–Sex 10h–17h / Sáb 10h–12h</td></tr>
+          <tr><td>SAC — Garantia da Bateria</td><td>(21) 98876-2250</td><td>Seg–Sex 10h–17h / Sáb 10h–12h</td></tr>
+          <tr><td>E-mail SAC</td><td>sac@motochefebrasil.com.br</td><td>Seg–Sex 10h–17h</td></tr>
+          <tr><td>Site Oficial</td><td>motochefebrasil.com.br</td><td>24h</td></tr>
+          <tr><td>Club MotoChefe</td><td>motochefe.aride.com.br</td><td>24h</td></tr>
+          <tr><td>Instagram</td><td>@motochefebrasil</td><td>—</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">REF 10.5</span>
+        <h3>Referência Rápida — 14 Regras da Bateria</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="quick-table">
+          <tr><th>#</th><th>Regra</th></tr>
+          <tr><td>1</td><td>Máx. 8h de carregamento. NUNCA durante a noite.</td></tr>
+          <tr><td>2</td><td>Acompanhe o carregamento: luz verde = ok.</td></tr>
+          <tr><td>3</td><td>Tomada de parede direta. Sem extensões ou filtros de linha.</td></tr>
+          <tr><td>4</td><td>Carregue em local aberto, ventilado e protegido.</td></tr>
+          <tr><td>5</td><td>JAMAIS carregue exposta ao sol.</td></tr>
+          <tr><td>6</td><td>Sem objetos metálicos nos conectores (risco de curto).</td></tr>
+          <tr><td>7</td><td>Tampe sempre a tomada da bateria.</td></tr>
+          <tr><td>8</td><td>PROIBIDO reparar a bateria. Cancela garantia automaticamente.</td></tr>
+          <tr><td>9</td><td>Use APENAS baterias e carregadores originais MotoChefe.</td></tr>
+          <tr><td>10</td><td>Evite produtos recondicionados ou de procedência duvidosa.</td></tr>
+          <tr><td>11</td><td>Aguarde 30 min após o uso antes de carregar.</td></tr>
+          <tr><td>12</td><td>Não exceda o peso máximo. Mantenha pneus calibrados.</td></tr>
+          <tr><td>13</td><td>Não deixe descarregar completamente.</td></tr>
+          <tr><td>14</td><td>Armazenamento +1 mês: manter entre 60–80% de carga. Recarregar a cada 3 meses.</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="lesson">
+      <div class="lesson-header" onclick="toggleLesson(this)">
+        <span class="lesson-num">REF 10.6</span>
+        <h3>Referência Rápida — Perfil de Cliente por Modelo</h3>
+        <span class="toggle">▶</span>
+      </div>
+      <div class="lesson-body">
+        <table class="quick-table">
+          <tr><th>Situação do Cliente</th><th>Modelo(s) Recomendado(s)</th><th>Argumento-chave</th></tr>
+          <tr><td>Sem CNH, quer mobilidade urbana</td><td>X12, BOB, JET, Giga</td><td>"Sem CNH, sem placa, começa hoje"</td></tr>
+          <tr><td>Quer maior autonomia disponível</td><td>Jet Max (55 km)</td><td>"Vai e volta sem recarregar"</td></tr>
+          <tr><td>Precisa de 2 lugares + carga</td><td>BOB, MC20 Mini, Joy Super</td><td>"Leva você e quem você quiser"</td></tr>
+          <tr><td>Público feminino</td><td>Mia, Sofia, Joyzinha, Joy Classic</td><td>"Feita para você, do jeito que você merece"</td></tr>
+          <tr><td>Quer tecnologia avançada</td><td>Giga (NFC), MC21 Mini</td><td>"Liga com cartão, painel digital completo"</td></tr>
+          <tr><td>Delivery / Trabalho</td><td>BOB, Ciclomotores</td><td>"Custo operacional 90% menor que moto a combustão"</td></tr>
+          <tr><td>Tem CNH, quer mais velocidade</td><td>Ciclomotores</td><td>"50 km/h, autonomia de 70 km"</td></tr>
+          <tr><td>Dificuldade de equilíbrio / Terceira idade</td><td>Triciclos</td><td>"Três rodas, estabilidade total"</td></tr>
+          <tr><td>Quer saúde + mobilidade</td><td>E-Bikes</td><td>"Pedale quando quiser, acelere quando precisar"</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function showModule(id, el) {
+  document.querySelectorAll('.module-page').forEach(p => p.classList.remove('visible'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(id).classList.add('visible');
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function toggleLesson(header) {
+  header.classList.toggle('open');
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function answerQuiz(option, result) {
+  const options = option.parentElement.querySelectorAll('.quiz-option');
+  options.forEach(o => o.style.pointerEvents = 'none');
+  option.classList.add(result);
+  const feedback = option.closest('.quiz-question').querySelector('.quiz-feedback');
+  feedback.classList.add('show');
+}
+</script>
+</body>
+</html>
+HTMLEOF
+echo "File created"
+wc -c /
